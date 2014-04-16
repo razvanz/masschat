@@ -1,0 +1,13 @@
+{
+  "name": "MassChat",
+  "version": "0.0.1",
+  "description": "A simple chat system",
+  "main": "server.js",
+  "repository": "git@bitbucket.org:largesystemsteam/masschat.git",
+  "author": "MassChat team",
+  "dependencies": {
+    "connect": "*",
+    "socket.io": "*"
+  },
+  "licence": "BSD"
+}

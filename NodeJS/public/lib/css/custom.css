@@ -1,0 +1,142 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    color: #444444;
+}
+body {
+    background-color: #666;
+}
+textarea {
+    resize: none;
+}
+ul.chat-list {
+    list-style-type: none;
+    padding: 0px;
+}
+#profile-info {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+.navbar {
+    margin-bottom: 0px;
+}
+.container {
+    height: 100%;
+}
+#chat-app {
+    padding-top: 52px;
+    height: 100%;
+}
+#chat-app ul li a, #chat-app ul li a:visited , #chat-app ul li a:focus, #chat-app ul li a:active {
+    color: #444444;
+    text-decoration: none;
+}
+#send-message {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+#group-chats {
+    background-color: #777;
+    height: 100%;
+    padding: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#friend-chats {
+    background-color: #777;
+    height: 100%;
+    padding: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#active-chat {
+    height: 100%;
+    padding: 0px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#active-chat-messages{
+	padding-bottom: 100px;
+}
+.load-more-messages{
+	width: 100%;
+	text-align: center;
+	color: blue;
+}
+
+.messages{
+	width: 100%;
+	text-align: left;
+	padding-top: 20px;
+	padding-right: 20px;
+	padding-left: 20px; 
+}
+
+.message{
+	width: 100%;
+	color: #222222;
+    padding: 5px 5px;
+}
+
+.own-message > .msg-text{
+	color: green;
+}
+
+.msg-author{
+	font-size: 14px;
+	float: left;
+}
+
+.msg-timestamp{
+	color: #454545;
+	font-size: 14px;
+	float: right;
+}
+.msg-text{
+	font-size: 14px;
+	padding-left: 10px;
+}
+
+.friend-chat,.group-chat {
+    width: 100%;
+    padding: 10px 10px;
+}
+
+#add-friend,#add-group-chat{
+	width: 100%;
+    padding: 10px 10px;
+	background-color: #666;
+    color: #222222;
+    margin-bottom: 20px;
+}
+
+#friend-chat-list, #group-chat-list {
+    text-align: left;
+}
+#friend-chat-list li:hover , #friend-chat-list li:active, #group-chat-list li:hover, #group-chat-list li:active {
+    background-color: #666;
+    color: #222222;
+}
+#friend-chat-list li:hover a, #friend-chat-list li:active a, #group-chat-list li:hover a, #group-chat-list li:active a{
+    background-color: #666;
+    color: #222222;
+}
+.badge-notification {
+    background-color: #a94442;
+    float: right;
+    padding: 3px 6px;
+}
+#msg-input, #msg-send-btn {
+    height: 65px;
+    background-color: #bbb;
+    border: none;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+#msg-send-btn{
+    background-color: #aaaaaa;
+    font-weight: bold;
+}

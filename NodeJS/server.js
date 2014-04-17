@@ -7,10 +7,13 @@ var io = require("socket.io"),
     GroupChatSchema = require('./database/schemas/groupChat');
 var SERVERPORT = 7777;
 var chatRoom = io.listen(connect().use(connect.static('public')).listen(SERVERPORT));
-var userTokens = []; // save here the active users info {username, token, soketID}
-// testLoadChat({username: 'razvan', token: '123456789'}, function(data){console.log(data);});
-// function testLoadChat(params, responseFn){
-// }
+var userTokens = [{username: 'razvan', token: '123456789', socket: ''}]; // save here the active users info {username, token, soketID}
+
+testChatEvent({username: 'razvan', token: '123456789', groupChatId: '534fbabc5edf3d5d073b42f1', groupUser: 'alex'}, function(data){console.log(data);});
+
+function testChatEvent(params, responseFn){
+}
+
 chatRoom.sockets.on('connection', function(socket) {
     // it is done
     socket.on('loadChat', function(params, responseFn) {
@@ -97,23 +100,22 @@ chatRoom.sockets.on('connection', function(socket) {
             Response to client:
             response = {users: [username], messages: [ username, text, datetime, seenBy: [username, username,...] ] [, admin:[username, ...], chatname] }
         */
+
         return userTokens.forEach(function(item, index, array) {
             if (item.token === params.token && item.username === params.username) {
 
                 if (params.privateChatId) {
-                    return PrivateChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString())}, 'users, messages',function(err, privateChat){
+                    return PrivateChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString())}, 'users messages',function(err, privateChat){
                         if (err) return handleError(err, 'database');
                         else{
-                            console.log(privateChat);
                             return responseFn(privateChat);
                         }
                     });
                 }
                 else if (params.groupChatId) {
-                    return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString())}, 'users, messages',function(err, groupChat){
+                    return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString())}, 'users admin chatname messages',function(err, groupChat){
                         if (err) return handleError(err, 'database');
                         else{
-                            console.log(groupChat);
                             return responseFn(groupChat);
                         }
                     });
@@ -127,6 +129,7 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+
     socket.on('sendMessage', function(params) {});
     socket.on('receivedMessage', function(params, responseFn) {});
     socket.on('addFriend', function(params, responseFn) {});
@@ -137,81 +140,60 @@ chatRoom.sockets.on('connection', function(socket) {
     socket.on('addGroupUser', function(params, responseFn) {
         /*
             Received from client:
-            params = {username, token, groupId, groupUser}
+            params = {username, token, groupChatId, groupUser}
             Response to client:
             response = {success || fail}
         */
-        for (var i = userTokens.length - 1; i >= 0; i--) {
-            if (userTokens[i].token === params.token && userTokens[i].username === params.username) {
-                UserSchema.findOne({
-                    'username': params.username
-                }).select('_id groupChats').exec(function(err, user) {
-                    if (err) return handleError(err, 'database');
-                    else {
-                        for (var i = user.groupChats.length - 1; i >= 0; i--) {
-                            if (user.groupChats[i].groupChatId === params.chatId) {
-                                user.groupChats[i].users.push({
-                                    username: params.groupUser
-                                });
-                                return UserSchema.update({
-                                    '_id': user._id
-                                }, {
-                                    $set: {
-                                        groupChats: user.groupChats
-                                    }
-                                }, function(err, userUpdateResult) {
-                                    if (err) return handleError(err, 'database');
-                                    else {
-                                        UserSchema.findOne({
-                                            'username': params.groupUser
-                                        }).select('_id groupChats').exec(function(err, newGroupUser) {
-                                            if (err) return handleError(err, 'database');
-                                            else {
-                                                for (var i = userTokens.length - 1; i >= 0; i--) {
-                                                    if (userTokens[i].username === params.groupUser) {
-                                                        userTokens[i].socket.join(params.chatId);
-                                                    }
-                                                };
-                                                newGroupUser.groupChats.push(user.groupChats[i]);
-                                                return UserSchema.update({
-                                                    '_id': newGroupUser._id
-                                                }, {
-                                                    $set: {
-                                                        groupChats: newGroupUser.groupChats
-                                                    }
-                                                }, function(err, newGroupUserUpdateResult) {
-                                                    if (err) return handleError(err, 'database');
-                                                    else {
-                                                        return GroupChatSchema.update({
-                                                            '_id': user.groupChats[i].groupChatId
-                                                        }, {
-                                                            $set: {
-                                                                'users': user.groupChats[i].users
-                                                            }
-                                                        }, function(err, groupChatsUpdateResult) {
-                                                            if (err) return handleError(err, 'database');
-                                                            else {
-                                                                responseFn({
-                                                                    success: 'ok'
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
+
+        return userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+                return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString())}, 'users chatname',function(err, groupChat){
+                        if (err) return handleError(err, 'database');
+                        else{
+                            if(groupChat){
+                                var groupUsers = groupChat.users;
+                                if(groupUsers.indexOf(params.groupUser.toString()) < 0){
+                                    return UserSchema.findOne({'username': params.groupUser.toString()}, 'groupChats', function(err, user){
+                                        if(err) return handleError(err, 'database');
+                                        else if(user){
+                                            user.groupChats.push({chatname: groupChat.chatname, groupChatId: groupChat._id});
+                                            user.save(function(err, updatedUser){
+                                                if(err) return handleError(err, 'database');
+                                                else{
+                                                    groupUsers.push(params.groupUser.toString());
+                                                    return GroupChatSchema.update({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString())}, {$set: { 'users' : groupUsers }}, function(err, hasUpdated){
+                                                        if(err) return handleError(err, 'database');
+                                                        else if(hasUpdated){
+                                                            //TO-DO the broadcast has to be tested
+                                                            socket.broadcast.to(groupChat._id.toString()).emit('newUserOnGroup', { groupChatId : groupChat._id.toString()});
+                                                            return responseFn('success');
+                                                        }
+                                                        else{
+                                                            return responseFn('fail - unable to update');
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else{
+                                            return responseFn('fail - user not found!');
+                                        }
+                                    });
+                                }
+                                else{
+                                    return responseFn('fail - user already in the group');
+                                }
                             }
-                        };
-                    }
-                });
+                            else return responseFn('fail - no group chat found');
+                        }
+                    });
             }
-            responseFn({
-                success: 'fail'
-            });
-        };
+            else{
+                return responseFn('not authorized');
+            }
+        });
     });
+
     socket.on('updateUsersStatus', function(params) {
         /*
             Received from client:
@@ -247,6 +229,7 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+
     socket.on('disconnect', function(params, responseFn) {
         /*
             Received from client:

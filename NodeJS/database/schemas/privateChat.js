@@ -1,17 +1,13 @@
 var mongoose = require('mongoose');
 
-var UsersScheama = new Schema({
-    username: {type: String}
-});
-
-var MessageSchema = new Schema({
+var Message = {
     username: {type: String},
     text: {type: String},
     datetime: {type: Number},
-    seenBy: [UsersScheama]
-});
+    seenBy: [String]
+};
 
 module.exports = mongoose.model('PrivateChat', {
-    users: [UsersScheama],
-    messages: [MessageSchema]
+    users: [String],
+    messages: [Message]
 });

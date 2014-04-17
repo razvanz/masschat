@@ -1,24 +1,22 @@
 var mongoose = require('mongoose');
 
-var PrivateChatSumSchema = new Schema({
+var ObjectId = mongoose.Schema.Types.ObjectId;
+
+var PrivateChat = {
 	username: {type: String},
-	privateChatId: {type: String}
-});
+	privateChatId: ObjectId
+};
 
-var UsersScheama = new Schema({
-	username: {type: String}
-});
+var GroupChat = {
+	chatname : {type: String},
+	groupChatId: ObjectId
+};
 
-var GroupChatSumSchema = new Schema({
-	users: [UsersScheama],
-	groupChatId: {type: String}
-});
-
-module.exports = mongoose.model('Users', {
+module.exports = mongoose.model('User', {
 	username: String,
 	password: String,
 	token: String,
 	status: String,
-	privateChats: [PrivateChatSumSchema],
-	groupChats: [GroupChatSumSchema]
+	privateChats: [PrivateChat],
+	groupChats: [GroupChat]
 });

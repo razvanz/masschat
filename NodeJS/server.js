@@ -9,14 +9,15 @@ var SERVERPORT = 7777;
 var chatRoom = io.listen(connect().use(connect.static('public')).listen(SERVERPORT));
 var userTokens = [{username: 'razvan', token: '123456789', socket: ''}]; // save here the active users info {username, token, soketID}
 
-// testChatEvent({username: 'razvan', token: '123456789', friend: 'alex'}, function(data){console.log(data);});
+ // testChatEvent({username: 'razvan', token: '123456789', text: 'test sendMessage event', privateChatId: '53517fb27b516bd7039ed939'}, function(data){console.log(data);});
 
-// function testChatEvent(params, responseFn){
-   
-// }
+ // function testChatEvent(params, responseFn){
+
+ // }
 
 chatRoom.sockets.on('connection', function(socket) {
     
+    //Razvan
     socket.on('loadChat', function(params, responseFn) {
         /*
             Received from client:
@@ -93,6 +94,7 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+    //Razvan
     socket.on('chatSelect', function(params, responseFn) {
         /*
             Received from client:
@@ -108,7 +110,17 @@ chatRoom.sockets.on('connection', function(socket) {
                     return PrivateChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString())}, 'users messages',function(err, privateChat){
                         if (err) return handleError(err, 'database');
                         else{
-                            return responseFn(privateChat);
+                            for (var i = privateChat.messages.length - 1; i >= 0; i--) {
+                                if(privateChat.messages[i].seenBy.indexOf(params.username) < 0){
+                                    privateChat.messages[i].seenBy.push(params.username);
+                                }
+                            }
+                            return privateChat.save(function(err, privateChat){
+                                if (err) return handleError(err, 'database');
+                                else{
+                                    return responseFn(privateChat);
+                                }
+                            });
                         }
                     });
                 }
@@ -116,7 +128,17 @@ chatRoom.sockets.on('connection', function(socket) {
                     return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString())}, 'users admin chatname messages',function(err, groupChat){
                         if (err) return handleError(err, 'database');
                         else{
-                            return responseFn(groupChat);
+                            for (var i = groupChat.messages.length - 1; i >= 0; i--) {
+                                if(groupChat.messages[i].seenBy.indexOf(params.username) < 0){
+                                    groupChat.messages[i].seenBy.push(params.username);
+                                }
+                            }
+                            return groupChat.save(function(err, groupChat){
+                                if (err) return handleError(err, 'database');
+                                else{
+                                    return responseFn(groupChat);
+                                }
+                            });
                         }
                     });
                 }
@@ -129,8 +151,57 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
-    socket.on('sendMessage', function(params) {});
+    //Razvan
+    socket.on('sendMessage', function(params, responseFn) {
+        /*
+            Received from client:
+            params = {token, username, messageText, privateChatId || groupChatId}
+            Response:
+                emmiting the message to all the chat users 
+                {privateChatId || groupChatId, message: {username, text, datetime, seenBy: []}}
+        */
+        return userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+
+                var message = {
+                    username: params.username,
+                    text: params.text,
+                    datetime: Date.now(),
+                    seenBy: []
+                };
+
+                if (params.privateChatId) {
+                    return PrivateChatSchema.findByIdAndUpdate(mongoose.Types.ObjectId(params.privateChatId.toString()), {$push: {'messages': message}}, function(err, privateChat){
+                        if (err) return handleError(err, 'database');
+                        else if(privateChat) {
+                            socket.broadcast.to(params.privateChatId.toString()).emit('newMessage', {privateChatId: params.privateChatId, message: message});
+                            return responseFn('success - message send');
+                        }
+                        else return responseFn('fail - not able to send message');
+                    });
+                }
+                else if (params.groupChatId) {
+                    return GroupChatSchema.findByIdAndUpdate(mongoose.Types.ObjectId(params.groupChatId.toString()), {$push: {'messages': message}}, function(err, groupChat){
+                        if (err) return handleError(err, 'database');
+                        else if(groupChat) {
+                            socket.broadcast.to(params.groupChatId.toString()).emit('newMessage', {groupChatId: params.groupChatId, message: message});
+                            return responseFn('success - message send');
+                        }
+                        else return responseFn('fail - not able to send message');
+                    });
+                }
+                else {
+                    return responseFn({status: 'fail - wrong chat id'});
+                }
+            }
+            else{
+                return responseFn('not authorized');
+            }
+        });
+    });
+    //Razvan
     socket.on('messageReceived', function(params) {});
+    //Razvan
     socket.on('addFriend', function(params, responseFn) {
         /*
             Received from client:
@@ -198,10 +269,15 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+    //Razvan
     socket.on('confirmChatJoin', function(params, responseFn) {});
+    //Ruslans
     socket.on('deleteFriend', function(params, responseFn) {});
+    //Ruslans
     socket.on('createGroupChat', function(params, responseFn) {});
+    //Ruslans
     socket.on('deleteGroupChat', function(params, responseFn) {});
+    //Razvan
     socket.on('addGroupUser', function(params, responseFn) {
         /*
             Received from client:
@@ -258,7 +334,9 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+    //Ruslans
     socket.on('removeGroupUser', function(params, responseFn) {});
+    //Razvan
     socket.on('disconnect', function(params, responseFn) {
         /*
             Received from client:

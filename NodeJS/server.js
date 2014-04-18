@@ -9,13 +9,13 @@ var SERVERPORT = 7777;
 var chatRoom = io.listen(connect().use(connect.static('public')).listen(SERVERPORT));
 var userTokens = [{username: 'razvan', token: '123456789', socket: ''}]; // save here the active users info {username, token, soketID}
 
-testChatEvent({username: 'razvan', token: '123456789', groupChatId: '534fbabc5edf3d5d073b42f1', groupUser: 'alex'}, function(data){console.log(data);});
+// testChatEvent({username: 'razvan', token: '123456789', groupChatId: '534fbabc5edf3d5d073b42f1', groupUser: 'alex'}, function(data){console.log(data);});
 
-function testChatEvent(params, responseFn){
-}
+// function testChatEvent(params, responseFn){
+// }
 
 chatRoom.sockets.on('connection', function(socket) {
-    // it is done
+    
     socket.on('loadChat', function(params, responseFn) {
         /*
             Received from client:
@@ -92,7 +92,6 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
-
     socket.on('chatSelect', function(params, responseFn) {
         /*
             Received from client:
@@ -129,14 +128,48 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
-
     socket.on('sendMessage', function(params) {});
-    socket.on('receivedMessage', function(params, responseFn) {});
-    socket.on('addFriend', function(params, responseFn) {});
-    socket.on('createGroup', function(params, responseFn) {});
-    socket.on('removeFriend', function(params, responseFn) {});
-    socket.on('leaveGroup', function(params, responseFn) {});
-    socket.on('removeGroupUser', function(params, responseFn) {});
+    socket.on('addFriend', function(params, responseFn) {
+        /*
+            Received from client:
+            params = { username, token, friend }
+            Response to client:
+            response = {userPrivateChat: {_id, username, privateChatId}}
+        */
+
+
+        // check if request is valid (username + token)
+        // checking if the friend exists
+        // checking if user and friend are already friends
+        // create a private chat
+        // save private chat for the user
+        // save private chat for the friend
+
+        return userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+                return UserSchema.findOne({'username' : params.friend}, 'username privateChats', function(err, friend){
+                    if (err) return handleError(err, 'database');
+                    else{
+                        if(friend){ // if friend does not exist in the database
+                            for (var i = friend.privateChats.length - 1; i >= 0; i--) {
+                                 if (friend.privateChats[i].username === params.username){
+                                    return responseFn('fail - you are already friends');
+                                 }
+                            };
+                            return //create private chat
+                        }
+                        else return responseFn('fail - user does not exists');
+                    }
+                })
+            }
+            else{
+                return responseFn('not authorized');
+            }
+        });
+    });
+    socket.on('deleteFriend', function(params, responseFn) {});
+    socket.on('createGroupChat', function(params, responseFn) {});
+    socket.on('deleteGroupChat', function(params, responseFn) {});
     socket.on('addGroupUser', function(params, responseFn) {
         /*
             Received from client:
@@ -193,43 +226,7 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
-
-    socket.on('updateUsersStatus', function(params) {
-        /*
-            Received from client:
-            params = { username, token, users: [username, username, ... ]}
-            Response to client:
-            response = [{username, status}, {username, status}, ... ]
-        */
-        userTokens.forEach(function(item, index, array) {
-            // checking if the request comes from a valid user
-            if (item.token === params.token && item.username === params.username) {
-                var response = {};
-                // if a connected user exists in the requested list,
-                // we add him to the response with his status (and remove him from the list - for performance)
-                array.forEach(function(user) {
-                    var indexOfUser = params.users.indexOf(user.username);
-                    if (indexOfUser >= 0) {
-                        response.push({
-                            username: user.username,
-                            status: user.status
-                        });
-                        params.splice(indexOfUser, 1);
-                    }
-                });
-                // the rest of the users that have been requested and they are not connected,
-                // we add them to the response with the status = 'offline'
-                params.users.forEach(function(item, index) {
-                    response.push({
-                        username: item,
-                        status: 'offline'
-                    });
-                });
-                return socket.emit('updateMyUsersStatus', response);
-            }
-        });
-    });
-
+    socket.on('removeGroupUser', function(params, responseFn) {});
     socket.on('disconnect', function(params, responseFn) {
         /*
             Received from client:
@@ -237,38 +234,40 @@ chatRoom.sockets.on('connection', function(socket) {
             Response to client:
             success : 'ok'
         */
-        userTokens.forEach(function(item, index, array) {
-            if (item.token === params.token && item.username === params.username) {
-                UserSchema.findOne({
-                    'username': params.username
-                }, '_id status', function(err, user) {
-                    if (err) return handleError(err, 'database');
-                    else {
-                        UserSchema.update({
-                            _id: user._id
-                        }, {
-                            $set: {
-                                status: 'offline'
-                            }
-                        }, function(err, updateResult) {
-                            if (err) return handleError(err, 'database');
-                            else {
-                                item.status = params.status;
-                                return responseFn({
-                                    success: 'ok'
-                                });
-                            }
-                        });
-                    }
-                });
-                return array.splice(index, 1);
-            }
-        });
-        return responseFn({
-            success: 'fail'
-        });
+        // userTokens.forEach(function(item, index, array) {
+        //     if (item.token === params.token && item.username === params.username) {
+        //         UserSchema.findOne({
+        //             'username': params.username
+        //         }, '_id status', function(err, user) {
+        //             if (err) return handleError(err, 'database');
+        //             else {
+        //                 UserSchema.update({
+        //                     _id: user._id
+        //                 }, {
+        //                     $set: {
+        //                         status: 'offline'
+        //                     }
+        //                 }, function(err, updateResult) {
+        //                     if (err) return handleError(err, 'database');
+        //                     else {
+        //                         item.status = params.status;
+        //                         return responseFn({
+        //                             success: 'ok'
+        //                         });
+        //                     }
+        //                 });
+        //             }
+        //         });
+        //         return array.splice(index, 1);
+        //     }
+        // });
+        // return responseFn({
+        //     success: 'fail'
+        // });
     });
 });
+
+
 
 function handleError(err, type) {
     switch (type) {

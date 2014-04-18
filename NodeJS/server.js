@@ -9,9 +9,10 @@ var SERVERPORT = 7777;
 var chatRoom = io.listen(connect().use(connect.static('public')).listen(SERVERPORT));
 var userTokens = [{username: 'razvan', token: '123456789', socket: ''}]; // save here the active users info {username, token, soketID}
 
-// testChatEvent({username: 'razvan', token: '123456789', groupChatId: '534fbabc5edf3d5d073b42f1', groupUser: 'alex'}, function(data){console.log(data);});
+// testChatEvent({username: 'razvan', token: '123456789', friend: 'alex'}, function(data){console.log(data);});
 
 // function testChatEvent(params, responseFn){
+   
 // }
 
 chatRoom.sockets.on('connection', function(socket) {
@@ -129,12 +130,13 @@ chatRoom.sockets.on('connection', function(socket) {
         });
     });
     socket.on('sendMessage', function(params) {});
+    socket.on('messageReceived', function(params) {});
     socket.on('addFriend', function(params, responseFn) {
         /*
             Received from client:
             params = { username, token, friend }
             Response to client:
-            response = {userPrivateChat: {_id, username, privateChatId}}
+            response = {username, privateChatId}
         */
 
 
@@ -156,7 +158,36 @@ chatRoom.sockets.on('connection', function(socket) {
                                     return responseFn('fail - you are already friends');
                                  }
                             };
-                            return //create private chat
+                            var newPrivateChat = new PrivateChatSchema({
+                                users: [params.username, friend.username],
+                                messages: []
+                            });
+                            return newPrivateChat.save(function(err, createdPrivateChat){
+                                if(err) return handleError(err, 'database');
+                                else if(createdPrivateChat){
+                                    var userFriendChat = {
+                                        username: friend.username,
+                                        privateChatId: createdPrivateChat._id
+                                    };
+                                    return UserSchema.update({'username': params.username}, {$push: {privateChats: userFriendChat}},function(err, hasUpdatedUser){
+                                        if(err) return handleError(err, 'database');
+                                        else if(hasUpdatedUser){
+                                            userFriendChat.username = params.username;
+                                            return UserSchema.update({'username': params.friend}, {$push: {privateChats: userFriendChat}},function(err, hasUpdatedFriend){
+                                                if(err) return handleError(err, 'database');
+                                                else if(hasUpdatedFriend){
+                                                    socket.join(createdPrivateChat._id.toString());
+                                                    //emmit to friend that you have connected join join him to the room
+                                                    return responseFn({username: params.friend, privateChatId: createdPrivateChat._id.toString()});   
+                                                }
+                                                else return responseFn('fail - unable to add to friend');
+                                            });
+                                        }
+                                        else return responseFn('fail - unable to add friend');
+                                    });
+                                }
+                                else return responseFn('fail - unable to create private chat');
+                            });
                         }
                         else return responseFn('fail - user does not exists');
                     }
@@ -167,6 +198,7 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
+    socket.on('confirmChatJoin', function(params, responseFn) {});
     socket.on('deleteFriend', function(params, responseFn) {});
     socket.on('createGroupChat', function(params, responseFn) {});
     socket.on('deleteGroupChat', function(params, responseFn) {});

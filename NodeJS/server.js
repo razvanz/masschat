@@ -270,13 +270,171 @@ chatRoom.sockets.on('connection', function(socket) {
         });
     });
     //Razvan
-    socket.on('confirmChatJoin', function(params, responseFn) {});
-    //Ruslans
-    socket.on('deleteFriend', function(params, responseFn) {});
-    //Ruslans
-    socket.on('createGroupChat', function(params, responseFn) {});
-    //Ruslans
-    socket.on('deleteGroupChat', function(params, responseFn) {});
+    socket.on('confirmChatJoin', function(params, responseFn) {
+
+    });
+    //Ruslans - done / test - ???
+    socket.on('deleteFriend', function(params, responseFn) {
+        /*
+            Received from client:
+            params = { username, token, friend }
+            Response to client:
+            response = {username, privateChatId}
+        */
+
+
+        // check if request is valid (username + token)
+        // checking if the friend exists
+        // checking if user and friend are already friends
+        // create a private chat
+        // save private chat for the user
+        // save private chat for the friend
+
+        return userTokens.forEach(function(item, index, array) {
+            //authorized
+            if (item.token === params.token && item.username === params.username) {
+                //find the friend's record{username, privateChats} and proceed
+                return UserSchema.findOne({'username' : params.friend}, 'username privateChats', function(err, friend){
+                    if (err) return handleError(err, 'database');
+                    else {
+                        if(!friend){ // if friend exists in the database
+                            var chatId = -1;
+                            var chat = null;
+                            //looking for proper chat
+                            for (var i = 0; i < friend.privateChats.length; i++) {
+                                if (friend.privateChats[i].username === params.username) {
+                                    chatId = friend.privateChats[i].privateChatId;
+                                    chat = friend.privateChats[i];
+                                }
+                                
+                            }
+                            if (chatId === -1 || chat === null) {
+                                console.log("chatId  wasn't found!");
+                                return responseFn("fail - chatId not found");
+                            }
+                            PrivateChatSchema.remove({'_id' : chatId}, function (err) {
+                               if (err) console.log("Error removing chat instance from DB");
+                               return responseFn('fail - can not remove chat');
+                            });
+                            //Removing the chat from a friend's chatlist
+                            UserSchema.update({'username' : friend.username}, { $pull : { privateChats : chat}}, function (err, updatedUser) {
+                                if (err) console.log("Error updating" + err);
+                                console.log("Updated /friend/ user: \n" + JSON.stringify(updatedUser));
+                            });
+                            //Removing the chat from a user's chatlist
+                            chat.username = friend.username; //opposite names
+                            UserSchema.update({'username' : params.username}, { $pull : { privateChats : chat}}, function (err, updatedUser) {
+                                if (err) console.log("Error updating" + err);
+                                console.log("Updated user: \n" + JSON.stringify(updatedUser));
+                            });
+                        } else return responseFn('fail - such friend does not exist');
+                    }
+                });
+            } else {
+                return responseFn('not authorized');
+            }
+        });
+    });
+    //Ruslans - done / test - ???
+    socket.on('createGroupChat', function(params, responseFn) {
+        /*
+            Received from client:
+            params = { username, token, chatname }
+            Response to client:
+            response = { chatname, groupChatId, unreadMsgNr }
+            
+            have to call chatSelect with new groupChatId from client side
+        */
+        UserSchema.findOne({'username' : params.username}, function (err, doc) {
+            if (err) {
+                console.log("User does not exist");
+                return responseFn("fail - wrong username");
+            }
+            if (doc.token !== params.token) {
+                console.log("Wrong token submited");
+                return responseFn("fail - please, login again");
+            }
+        });
+        
+        
+        // Should we check for existing chat with such name?
+        GroupChatSchema.findOne({'chatname' : params.chatname}, function (err, doc) {
+            if (err) {
+                console.log("Error finding the chat: " + err);
+                return responseFn("fail - who da fck knows it...");
+            }
+            if (doc !== null) {
+                return responseFn("fail - such chatname already exists");
+            }
+        });
+        
+        var newChat = new GroupChatSchema({
+            users: [params.username],
+            admin: [params.username],
+            chatname: params.chatname,
+            messages: [{username: params.username,
+                text: "New chat room has been created",
+                datetime: Date.now(),
+                seenBy: [params.username]}]
+        });
+        
+        newChat.save(function (err, doc) {
+            if (err) {
+                console.log("Error saving chat instance: " + err);
+                return responseFn("fail - try again");
+            }
+            socket.join(doc._id.toString()); //groupChatId
+            return responseFn({'chatname' : doc.chatname, 'groupChatId' : doc._id, 'unreadMsgNr' : 1});
+        });
+    });
+    //Ruslans - done / test - ???
+    socket.on('deleteGroupChat', function(params, responseFn) {
+/*
+            Received from client:
+            params = { username, token, chatname }
+            Response to client:
+            response = { chatname, groupChatId, unreadMsgNr }
+            
+            have to call chatSelect with new groupChatId from client side
+        */
+        UserSchema.findOne({'username' : params.username}, function (err, doc) {
+            if (err) {
+                console.log("User does not exist");
+                return responseFn("fail - wrong username");
+            }
+            if (doc.token !== params.token) {
+                console.log("Wrong token submited");
+                return responseFn("fail - please, login again");
+            }
+        });
+        
+        GroupChatSchema.findOne({'chatname' : params.chatname}, function (err, doc) {
+            if (err) {
+                console.log("Error finding the chat: " + err);
+                return responseFn("fail - who da fck knows it...");
+            }
+            if (doc === null) {
+                return responseFn("fail - such chatname doesn't exists");
+            }
+            doc.remove(function (err) {
+                if (err) {
+                    console.log("Error removing the chat: " + err);
+                    return responseFn("fail - can not remove chat");
+                }
+                socket.broadcast.to(doc._id.toString()).emit('groupChatRemoved', { 'groupChatId' : doc._id.toString()});
+                return responseFn("success");
+            });
+        });
+        
+        // newChat.save(function (err, doc) {
+        //     if (err) {
+        //         console.log("Error saving chat instance: " + err);
+        //         return responseFn("fail - try again");
+        //     }
+        //     socket.join(doc._id.toString()); //groupChatId
+        //     return responseFn({'chatname' : doc.chatname, 'groupChatId' : doc._id, 'unreadMsgNr' : 1});
+        // });        
+    });
     //Razvan
     socket.on('addGroupUser', function(params, responseFn) {
         /*
@@ -334,8 +492,51 @@ chatRoom.sockets.on('connection', function(socket) {
             }
         });
     });
-    //Ruslans
-    socket.on('removeGroupUser', function(params, responseFn) {});
+    //Ruslans - done / test - ???
+    socket.on('removeGroupUser', function(params, responseFn) {
+        /*
+            Received from client:
+            params = {username, token, groupChatId, groupUser}
+            Response to client:
+            response = {success || fail}
+        */ 
+        UserSchema.findOne({'username' : params.username}, function (err, doc) {
+            if (err) {
+                console.log("User does not exist");
+                return responseFn("fail - wrong username");
+            }
+            if (doc.token !== params.token) {
+                console.log("Wrong token submited");
+                return responseFn("fail - please, login again");
+            }
+        });
+        
+        GroupChatSchema.findById(params.groupChatId, function (err, doc) {
+            if (err) {
+                console.log("Error finding the chat: " + err);
+                return responseFn("fail - who da fck knows it...");
+            }
+            if (doc === null) {
+                return responseFn("fail - such chatname doesn't exists");
+            }
+            var found = -1;
+            var users = doc.users;
+            for (var i = 0; i < users.length; i++) {
+                if (users[i] === params.groupUser) {
+                    found = i;
+                }
+            }
+            doc.update({ $pull : {users : users[i]}}, function (err, doc) {
+                if (err) {
+                    console.log("Error updating chat record: " + err);
+                    return responseFn("fail - can not kick user");
+                }
+                if (doc.users[i] === users[i]) return responseFn("fail - can not kick user");
+                socket.broadcast.to(params.groupChatId).emit('userExpelledFromChat', { 'groupChatId' : params.groupChatId, 'username' : users[i]});
+                return responseFn("success");
+            });
+        });        
+    });
     //Razvan
     socket.on('disconnect', function(params, responseFn) {
         /*
@@ -406,13 +607,13 @@ function calcUnreadUserMsgs(username, callback) {
         map: function() {
             if (this.users.indexOf(username) < 0) return;
             if (this.messages.length < 1 || !this.messages) return;
-            for (index in this.messages) {
+            for (var index in this.messages) {
                 if (this.messages[index].seenBy.indexOf(username) < 0) emit(this._id, 1);
             }
         },
         reduce: function(previous, current) {
             var count = 0;
-            for (index in current) count += current[index];
+            for (var index in current) count += current[index];
             return count;
         },
         scope: {

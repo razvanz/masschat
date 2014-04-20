@@ -1,3 +1,4 @@
+// var db = require('./db.js');
 var UserSchema = require('./schemas/user'),
     PrivateChatSchema = require('./schemas/privateChat'),
     GroupChatSchema = require('./schemas/groupChat');
@@ -221,6 +222,7 @@ var initDB = function() {
             });
         }
     });
-}
+};
 
+// initDB();
 module.exports = initDB;

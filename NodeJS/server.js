@@ -9,11 +9,72 @@ var SERVERPORT = 7777;
 var chatRoom = io.listen(connect().use(connect.static('public')).listen(SERVERPORT));
 var userTokens = [{username: 'razvan', token: '123456789', socket: ''}]; // save here the active users info {username, token, soketID}
 
- // testChatEvent({username: 'razvan', token: '123456789', text: 'test sendMessage event', privateChatId: '53517fb27b516bd7039ed939'}, function(data){console.log(data);});
+ testChatEvent({username: 'razvan', token: '123456789', message: {username: 'razvan',text: 'test sendMessage event',datetime: 1397853686066, seenBy: []}, privateChatId: '53517fb27b516bd7039ed939'}, function(data){console.log(data);});
 
- // function testChatEvent(params, responseFn){
+ function testChatEvent(params, responseFn){
 
- // }
+
+        /*
+            Received from client:
+            params = {token, username, privateChatId || groupChatId, message}
+            Response to client:
+            Broadcast to clients: response = {privateChatId || groupChatId, message: {username, text, datetime, seenBy: []}}
+        */
+        // return userTokens.forEach(function(item, index, array) {
+        //     if (item.token === params.token && item.username === params.username) {
+               
+        //         if (params.privateChatId) {
+        //             return PrivateChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString()), 'messages.datetime': params.message.datetime}, {'messages.$' : 1}, function(err, privateChat){
+        //                 if (err) return handleError(err, 'database');
+        //                 else if(privateChat) {
+        //                     console.log(privateChat);
+        //                     if(privateChat.messages[0].seenBy.indexOf(params.username)< 0){
+        //                         return PrivateChatSchema.update({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString()), 'messages._id': mongoose.Types.ObjectId(privateChat.messages[0]._id.toString())}, {$push: {'messages.seenBy': params.username}}, function(err, hasUpdated){
+        //                             if (err) return handleError(err, 'database');
+        //                             else if(hasUpdated){
+        //                                 privateChat.messages[0].seenBy.push(params.username);
+        //                                 console.log(privateChat);
+        //                                 //io.sockets.in(params.privateChatId.toString()).emit('messageSeenBy', {privateChatId: params.privateChatId, message: privateChat.message[0]});
+        //                                 return responseFn('success - message seen');
+        //                             }
+        //                             else return responseFn('fail - not updated seen by');
+        //                         });
+        //                     }
+        //                     else return responseFn('success - message already seen');
+        //                 }
+        //                 else return responseFn('fail - not able to send message');
+        //             });
+        //         }
+        //         else if (params.groupChatId) {
+        //             return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.groupChatId.toString()), 'messages.datetime': params.message.datetime}, {'messages.$' : 1}, function(err, groupChat){
+        //                 if (err) return handleError(err, 'database');
+        //                 else if(groupChat) {
+        //                     groupChat.messages[0].seenBy.push(params.username);
+        //                     groupChat.save(function(err, updatedGroupChat){
+        //                         if (err) return handleError(err, 'database');
+        //                         else if(updatedGroupChat){
+        //                             console.log(updatedGroupChat);
+        //                             //io.sockets.in(params.groupChatId.toString()).emit('messageSeenBy', {groupChatId: params.groupChatId, message: message});
+        //                             return responseFn('success - message received');
+        //                         }
+        //                         else return responseFn('fail - unable to update message');
+        //                     });
+
+        //                     console.log(groupChat);
+        //                 }
+        //                 else return responseFn('fail - not able to send message');
+        //             });
+        //         }
+        //         else {
+        //             return responseFn({status: 'fail - wrong chat id'});
+        //         }
+        //     }
+        //     else{
+        //         return responseFn('not authorized');
+        //     }
+        // });
+
+ }
 
 chatRoom.sockets.on('connection', function(socket) {
     
@@ -174,7 +235,7 @@ chatRoom.sockets.on('connection', function(socket) {
                     return PrivateChatSchema.findByIdAndUpdate(mongoose.Types.ObjectId(params.privateChatId.toString()), {$push: {'messages': message}}, function(err, privateChat){
                         if (err) return handleError(err, 'database');
                         else if(privateChat) {
-                            socket.broadcast.to(params.privateChatId.toString()).emit('newMessage', {privateChatId: params.privateChatId, message: message});
+                            io.sockets.in(params.privateChatId.toString()).emit('newMessage', {privateChatId: params.privateChatId, message: message});
                             return responseFn('success - message send');
                         }
                         else return responseFn('fail - not able to send message');
@@ -184,7 +245,7 @@ chatRoom.sockets.on('connection', function(socket) {
                     return GroupChatSchema.findByIdAndUpdate(mongoose.Types.ObjectId(params.groupChatId.toString()), {$push: {'messages': message}}, function(err, groupChat){
                         if (err) return handleError(err, 'database');
                         else if(groupChat) {
-                            socket.broadcast.to(params.groupChatId.toString()).emit('newMessage', {groupChatId: params.groupChatId, message: message});
+                            io.sockets.in(params.groupChatId.toString()).emit('newMessage', {groupChatId: params.groupChatId, message: message});
                             return responseFn('success - message send');
                         }
                         else return responseFn('fail - not able to send message');
@@ -200,7 +261,52 @@ chatRoom.sockets.on('connection', function(socket) {
         });
     });
     //Razvan
-    socket.on('messageReceived', function(params) {});
+    // TO-DO Update the seenBy on the message
+    socket.on('messageReceived', function(params, responseFn) {
+        /*
+            Received from client:
+            params = {token, username, privateChatId || groupChatId, message}
+            Response to client:
+            Broadcast to clients: response = {privateChatId || groupChatId, message: {username, text, datetime, seenBy: []}}
+        */
+        return userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+
+                params.message.seenBy.push(username);
+
+                if (params.privateChatId) {
+                    return PrivateChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString()), 'messages.datetime': params.message.datetime}, 'messages.seenBy', function(err, privateChat){
+                        if (err) return handleError(err, 'database');
+                        else if(privateChat) {
+                            console.log(privateChat);
+
+                            //io.sockets.in(params.privateChatId.toString()).emit('messageSeenBy', {privateChatId: params.privateChatId, message: message});
+                            return responseFn('success - message received');
+                        }
+                        else return responseFn('fail - not able to send message');
+                    });
+                }
+                else if (params.groupChatId) {
+                    return GroupChatSchema.findOne({ '_id' : mongoose.Types.ObjectId(params.privateChatId.toString()), 'messages.datetime': params.message.datetime}, 'messages.seenBy', function(err, groupChat){
+                        if (err) return handleError(err, 'database');
+                        else if(groupChat) {
+                            console.log(groupChat);
+
+                            //io.sockets.in(params.groupChatId.toString()).emit('newMessage', {groupChatId: params.groupChatId, message: message});
+                            return responseFn('success - message received');
+                        }
+                        else return responseFn('fail - not able to send message');
+                    });
+                }
+                else {
+                    return responseFn({status: 'fail - wrong chat id'});
+                }
+            }
+            else{
+                return responseFn('not authorized');
+            }
+        });
+    });
     //Razvan
     socket.on('addFriend', function(params, responseFn) {
         /*
@@ -248,7 +354,7 @@ chatRoom.sockets.on('connection', function(socket) {
                                                 if(err) return handleError(err, 'database');
                                                 else if(hasUpdatedFriend){
                                                     socket.join(createdPrivateChat._id.toString());
-                                                    //emmit to friend that you have connected join join him to the room
+                                                    //emmit to friend that you have connected join him to the room
                                                     return responseFn({username: params.friend, privateChatId: createdPrivateChat._id.toString()});   
                                                 }
                                                 else return responseFn('fail - unable to add to friend');
@@ -271,8 +377,34 @@ chatRoom.sockets.on('connection', function(socket) {
     });
     //Razvan
     socket.on('confirmChatJoin', function(params, responseFn) {
+        /*
+            Received from client:
+            params = {token, username, privateChatId || groupChatId}
+            Response to client:
+            response = success || fail
+        */
 
-    });
+        return userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+
+                if (params.privateChatId) {
+                    socket.join(params.privateChatId.toString());
+                    return responseFn('success - joined privateChat');
+                }
+                else if (params.groupChatId) {
+                    socket.join(params.groupChatId.toString());
+                    io.sockets.in(params.groupChatId.toString()).emit('newUserJoined', {groupChatId: params.groupChatId, username: params.username});
+                    return responseFn('success - joined groupChat');
+                }
+                else {
+                    return responseFn({status: 'fail'});
+                }
+            }
+            else{
+                return responseFn('not authorized');
+            }
+        });
+    });        
     //Ruslans - done / test - ???
     socket.on('deleteFriend', function(params, responseFn) {
         /*
@@ -286,9 +418,6 @@ chatRoom.sockets.on('connection', function(socket) {
         // check if request is valid (username + token)
         // checking if the friend exists
         // checking if user and friend are already friends
-        // create a private chat
-        // save private chat for the user
-        // save private chat for the friend
 
         return userTokens.forEach(function(item, index, array) {
             //authorized
@@ -425,15 +554,6 @@ chatRoom.sockets.on('connection', function(socket) {
                 return responseFn("success");
             });
         });
-        
-        // newChat.save(function (err, doc) {
-        //     if (err) {
-        //         console.log("Error saving chat instance: " + err);
-        //         return responseFn("fail - try again");
-        //     }
-        //     socket.join(doc._id.toString()); //groupChatId
-        //     return responseFn({'chatname' : doc.chatname, 'groupChatId' : doc._id, 'unreadMsgNr' : 1});
-        // });        
     });
     //Razvan
     socket.on('addGroupUser', function(params, responseFn) {
@@ -545,36 +665,39 @@ chatRoom.sockets.on('connection', function(socket) {
             Response to client:
             success : 'ok'
         */
-        // userTokens.forEach(function(item, index, array) {
-        //     if (item.token === params.token && item.username === params.username) {
-        //         UserSchema.findOne({
-        //             'username': params.username
-        //         }, '_id status', function(err, user) {
-        //             if (err) return handleError(err, 'database');
-        //             else {
-        //                 UserSchema.update({
-        //                     _id: user._id
-        //                 }, {
-        //                     $set: {
-        //                         status: 'offline'
-        //                     }
-        //                 }, function(err, updateResult) {
-        //                     if (err) return handleError(err, 'database');
-        //                     else {
-        //                         item.status = params.status;
-        //                         return responseFn({
-        //                             success: 'ok'
-        //                         });
-        //                     }
-        //                 });
-        //             }
-        //         });
-        //         return array.splice(index, 1);
-        //     }
-        // });
-        // return responseFn({
-        //     success: 'fail'
-        // });
+        userTokens.forEach(function(item, index, array) {
+            if (item.token === params.token && item.username === params.username) {
+                UserSchema.findOne({
+                    'username': params.username
+                }, '_id status', function(err, user) {
+                    if (err) return handleError(err, 'database');
+                    else {
+                        UserSchema.update({
+                            _id: user._id
+                        }, {
+                            $set: {
+                                status: 'offline'
+                            }
+                        }, function(err, hasUpdated) {
+                            if (err) return handleError(err, 'database');
+                            else {
+                                var userRooms = io.sockets.manager.roomClients[item.socket];
+                                for (var i = userRooms.length - 1; i >= 0; i--) {
+                                    socket.broadcast.to(userRooms[i].substring(1, userRooms[i].length)).emit('hasLeftChat', { username: params.username });
+                                };
+                                return responseFn({
+                                    success: 'ok'
+                                });
+                            }
+                        });
+                    }
+                });
+                return array.splice(index, 1);
+            }
+        });
+        return responseFn({
+            success: 'fail'
+        });
     });
 });
 

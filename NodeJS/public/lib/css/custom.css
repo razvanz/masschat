@@ -109,13 +109,14 @@ ul.chat-list {
     padding: 10px 10px;
 	background-color: #666;
     color: #222222;
-    margin-bottom: 20px;
+    border-bottom: 3px solid #444;
+   /*margin-bottom: 20px;*/
 }
 
 #friend-chat-list, #group-chat-list {
     text-align: left;
 }
-#friend-chat-list li:hover , #friend-chat-list li:active, #group-chat-list li:hover, #group-chat-list li:active {
+#friend-chat-list li:hover , #friend-chat-list li:active, #friend-chat-list li.active, #group-chat-list li:hover, #group-chat-list li:active, #group-chat-list li.active {
     background-color: #666;
     color: #222222;
 }
@@ -139,4 +140,27 @@ ul.chat-list {
 #msg-send-btn{
     background-color: #aaaaaa;
     font-weight: bold;
+}
+
+.chat-user{
+    display: inline-block;
+    border: 1px solid #444;
+    color: #222222;
+    background-color: #777777;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+#active-chat-users{
+    background-color: #888;
+    border-radius: 5px;
+    padding: 5px;
+    min-height: 40px;
+}
+
+.add-group-user, .deleteChat{
+    display: inline-block;
+    color: #222222;
+    padding: 5px;
+    float: right;
 }

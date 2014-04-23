@@ -19,11 +19,14 @@ Date.prototype.ourFormat = function(formatString) {
 };
 $(document).ready(function() {
     // to be loaded at login
-    var username = 'razvan';
-    var token = '123456789';
-    var user = ko.observable(),
-        activeChat = ko.observable(),
-        newFriendUsername = ko.observable();
+
+    var cookieVars = loadCookie();
+    var username = cookieVars.username;
+    var user_token = cookieVars.token;
+
+    var user = ko.observable(undefined),
+        activeChat = ko.observable(undefined),
+        newFriendUsername = ko.observable('');
     activeChat.subscribe(function(newValue) {
         if (newValue !== undefined) {
             $('#send-message:hidden').slideToggle('slow');
@@ -52,13 +55,13 @@ $(document).ready(function() {
         if (data.groupChatId !== undefined) {
             socket.emit('chatSelect', {
                 username: username,
-                token: token,
+                token: user_token,
                 groupChatId: data.groupChatId()
             }, loadActiveChat);
         } else {
             socket.emit('chatSelect', {
                 username: username,
-                token: token,
+                token: user_token,
                 privateChatId: data.privateChatId()
             }, loadActiveChat);
         }
@@ -78,7 +81,7 @@ $(document).ready(function() {
         var newChatName = $('#new-group-name').val();
         return socket.emit('createGroupChat', {
             username: username,
-            token: token,
+            token: user_token,
             chatname: newChatName
         }, createGroupChatCallback);
     };
@@ -97,7 +100,7 @@ $(document).ready(function() {
         var friendName = $('#friend-username').val();
         return socket.emit('addFriend', {
             username: username,
-            token: token,
+            token: user_token,
             friend: friendName
         }, addFriendCallback);
     };
@@ -115,7 +118,7 @@ $(document).ready(function() {
             var newGroupUser = $('#new-group-user').val();
             return socket.emit('addGroupUser', {
                 username: username,
-                token: token,
+                token: user_token,
                 groupChatId: activeChat()._id().toString(),
                 groupUser: newGroupUser
             }, addGroupUserCallback);
@@ -132,7 +135,7 @@ $(document).ready(function() {
         if (isGroupChat()) {
             socket.emit('removeGroupUser', {
                 username: username,
-                token: token,
+                token: user_token,
                 groupChatId: activeChat()._id(),
                 groupUser: usernameToRemove
             }, removeGroupUser);
@@ -150,14 +153,14 @@ $(document).ready(function() {
         if (activeChat().chatname !== undefined) {
             socket.emit('sendMessage', {
                 username: username,
-                token: token,
+                token: user_token,
                 messageText: text,
                 groupChatId: activeChat()._id()
             }, sendMessageOutcome);
         } else {
             socket.emit('sendMessage', {
                 username: username,
-                token: token,
+                token: user_token,
                 messageText: text,
                 privateChatId: activeChat()._id()
             }, sendMessageOutcome);
@@ -174,7 +177,7 @@ $(document).ready(function() {
         if (isGroupChat()) {
             socket.emit('deleteGroupChat', {
                 username: username,
-                token: token,
+                token: user_token,
                 groupChatId: activeChat()._id()
             }, deleteCallback);
         } else {
@@ -186,7 +189,7 @@ $(document).ready(function() {
             };
             socket.emit('deleteFriend', {
                 username: username,
-                token: token,
+                token: user_token,
                 friend: friendName
             }, deleteCallback);
         }
@@ -210,7 +213,7 @@ $(document).ready(function() {
         sendMessage: sendMessage,
         newFriendUsername: newFriendUsername
     };
-    var socket = io.connect("http://localhost:7777");
+    var socket = io.connect("http://localhost:8080");
     socket.on('newMessage', function(data) {
         newMessageReceived(data);
     });
@@ -287,10 +290,7 @@ $(document).ready(function() {
                 if (user().privateChats()[i].username === data.username) return user().privateChats()[i].status('online');
             }
     });
-    socket.emit('loadChat', {
-        username: username,
-        token: token
-    }, loadChat);
+    socket.emit('loadChat', { username: username, token: user_token }, loadChat);
 
     function loadChat(data) {
         user(ko.mapping.fromJS(data));
@@ -302,7 +302,7 @@ $(document).ready(function() {
             if (activeChat()._id() === data.privateChatId) {
                 socket.emit('messageReceived', {
                     username: username,
-                    token: token,
+                    token: user_token,
                     privateChatId: data.privateChatId,
                     message: data.message
                 });
@@ -317,7 +317,7 @@ $(document).ready(function() {
             if (activeChat()._id() === data.groupChatId) {
                 socket.emit('messageReceived', {
                     username: username,
-                    token: token,
+                    token: user_token,
                     groupChatId: data.groupChatId,
                     message: data.message
                 });
@@ -352,4 +352,14 @@ $(document).ready(function() {
     function closingCode() {
         return 'Are you sure you want to leave the chat?';
     };
+
+    function loadCookie(){
+        var cookieVars = document.cookie.split(';');
+        var result = {};
+        for (var i = cookieVars.length - 1; i >= 0; i--) {
+            cookieVars[i] = cookieVars[i].replace(/\s+/g, '');
+            result[cookieVars[i].substring(0,cookieVars[i].indexOf('='))] = cookieVars[i].substring(cookieVars[i].indexOf('=') + 1) ;
+        };
+        return result;
+    }
 });

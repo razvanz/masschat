@@ -758,6 +758,7 @@ function calcUnreadUserMsgs(username, callback) {
         }
     });
 }
+
 console.log(" Listening on port %s !", SERVERPORT);
 //var io = require('socket.io').listen(80);
 // io.sockets.on('connection', function (socket) {
@@ -765,3 +766,201 @@ console.log(" Listening on port %s !", SERVERPORT);
 //   socket.broadcast.to('justin bieber fans').emit('new fan'); // broadcast a message to a channel
 //   io.sockets.in('rammstein fans').emit('new non-fan'); // to another channel
 // });
+
+
+/************************************************************************/
+/************************************************************************/
+/*****************************             ******************************/
+/*****************************   EXPRESS   ******************************/
+/*****************************             ******************************/
+/************************************************************************/
+/************************************************************************/
+
+var express = require('express'),
+	app = express(),
+	cookieParser = require('cookie-parser'),
+	bodyParser = require('body-parser'),
+	cons = require('consolidate'),
+	MongoClient = require('mongodb').MongoClient,
+	bcrypt = require('bcrypt-nodejs'),
+	crypto = require('crypto');
+	
+app.engine('html', cons.swig);
+app.set('view engine', 'html');
+app.set('views', __dirname + "/public");
+app.use(bodyParser());
+app.use(cookieParser());
+
+// var mongoClient = new MongoClient(new Server('mongodb://test:masschat@ds035338.mongolab.com', 35338, { 'native_parser' : true }));
+
+// var db = mongoClient.db('users');
+
+
+app.get('/', function (req, res) {
+//request
+//result	
+	res.render('main');
+});	
+
+// app.get('/:name', function (req, res, next) {
+// 	var name = req.params.name;
+// 	var v1 = req.query.v1;
+// 	var v2 = req.query.v2;
+// 	res.render('getTest', { name : name, v1 : v1, v2 : v2 }); 
+// });
+
+app.get('/chat', function (req, res) {
+    res.render('index');
+});
+
+app.get('/login', function (req, res) {
+    res.render('login');
+});
+
+app.get('/register', function (req, res) {
+   res.render('register'); 
+});
+
+app.get('*', function (req, res) {
+	res.render('404');
+});
+
+app.post('/login', function (request, res) {
+	var username = request.body.username;
+	var password = request.body.password;
+	if ((typeof username == 'undefined') || (typeof password == 'undefined')) {
+		res.redirect('login');
+	} else {
+	    //login process
+	    
+		console.log("Looking for: " +username);
+		
+		db.collection("users").findOne({'username' : username}, function (err, user) {
+            "use strict";
+
+            // if (err) return callback(err, null);
+            if (err) {
+                console.log("Error: " + err);
+                res.render('login', { errors : err.message()});
+            }
+
+            if (user) {
+                if (bcrypt.compareSync(password, user.password)) {
+                    //generate token
+                    var current_date = (new Date()).valueOf().toString();
+                    var random = Math.random().toString();
+                    var token = crypto.createHash('sha1').update(current_date + random).digest('hex');
+                    // Insert session document
+                    db.collection("users").update({'username': user.username}, {$set : {'token' : token}}, function (err, user) {
+                        "use strict";
+                        if (err) {
+                            res.render('login', { errors : err.message()});
+                        }
+                	    res.cookie('username', username);
+                	    res.cookie('token', token);
+                		res.redirect('/chat');
+                    });
+                } else {
+                    var invalid_password_error = new Error("Invalid password");
+                    // Set an extra field so we can distinguish this from a db error
+                    invalid_password_error.invalid_password = true;
+                    //callback(invalid_password_error, null);
+                    // return invalid_password_error;
+                    console.log("Error: POST/LOGIN " + invalid_password_error);
+                    res.render('login', { errors : invalid_password_error});
+                }
+            } else {
+                var no_such_user_error = new Error("User: " + username + " does not exist");
+                // Set an extra field so we can distinguish this from a db error
+                no_such_user_error.no_such_user = true;
+                // callback(no_such_user_error, null);
+                //return no_such_user_error;
+                console.log("Error: POST/LOGIN " + no_such_user_error);
+                res.render('login', { errors : no_such_user_error});
+            }
+        });
+	}
+});
+
+app.post('/register', function (req, res) {
+   
+    function validateSignup(username, password, verify, errors) {
+        "use strict";
+        var USER_RE = /^[a-zA-Z0-9_-]{3,20}$/;
+        var PASS_RE = /^.{3,20}$/;
+
+        errors['username_error'] = "";
+        errors['password_error'] = "";
+        errors['verify_error'] = "";
+
+        if (!USER_RE.test(username)) {
+            errors['username_error'] = "invalid username. try just letters and numbers";
+            return false;
+        }
+        if (!PASS_RE.test(password)) {
+            errors['password_error'] = "invalid password.";
+            return false;
+        }
+        if (password != verify) {
+            errors['verify_error'] = "password must match";
+            return false;
+        }
+        return true;
+    }   
+
+    var email = req.body.email
+    var username = req.body.username
+    var password = req.body.password
+    var verify = req.body.verify
+
+    // set these up in case we have an error case
+    var errors = {'username': username}
+    if (validateSignup(username, password, verify, errors)) {
+        var salt = bcrypt.genSaltSync();
+        var password_hash = bcrypt.hashSync(password, salt);
+        var newuser = new UserSchema({
+            'username' : username,
+            'password' : password_hash
+        });
+        newuser.save(function(err, user) {
+            "use strict";
+			console.log("New user: " + JSON.stringify(user));
+			console.log("User_id: " + user['_id']);
+            if (err) {
+                // this was a duplicate
+                if (err.code == '11000') {
+                    errors['username_error'] = "Username already in use. Please choose another";
+                    return res.render("/register", errors);
+                }
+                // this was a different error
+                else {
+                    return err;
+                }
+            }
+
+            return res.redirect('/login');
+        });
+    }
+    else {
+        console.log("user did not validate");
+        return res.render("/register", errors);
+    }
+    
+});
+
+
+//Handler for internal server errors
+app.use(function errorHandler(err, req, res, next) {
+	console.error(err.message);
+	console.error(err.stack);
+	res.status(500);
+	res.render('404', { error : err.message });
+});
+
+MongoClient.connect('mongodb://test:masschat@ds035338.mongolab.com:35338/masschat', function (err, db) {
+
+	if (err) throw err;
+	
+	app.listen(8080);
+	console.log("Express server started on port 8080");
+});

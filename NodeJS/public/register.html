@@ -1,0 +1,10 @@
+<form name="register" action="register" method="post">
+    Username: <input type="text" name="username">
+    Password: <input type="password" name="password">
+    Verify password: <input type="password" name="verify">
+    <input type="submit" value="Register">
+</form>
+
+{% for error in errors%}
+<p>Error: {{error}}</p>
+{% endfor %}

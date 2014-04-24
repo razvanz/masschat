@@ -250,8 +250,6 @@ chatRoom.sockets.on('connection', function(socket) {
                         console.log('\n\n***********\n %s connected to chat!\n***********\n\n', params.username);
                         return responseFn(profile);
                     });
-                } else {
-                    return responseFn('Not authorized!');
                 }
             }
         });
@@ -321,8 +319,6 @@ chatRoom.sockets.on('connection', function(socket) {
                         status: 'fail'
                     });
                 }
-            } else {
-                return responseFn('not authorized');
             }
         });
     });
@@ -391,11 +387,6 @@ chatRoom.sockets.on('connection', function(socket) {
                         message: 'Chat to send message to is unknown!'
                     });
                 }
-            } else {
-                return responseFn({
-                    result: 'fail',
-                    message: 'not authorized'
-                });
             }
         });
     });
@@ -468,8 +459,6 @@ chatRoom.sockets.on('connection', function(socket) {
                 } else {
                     return false;
                 }
-            } else {
-                return false;
             }
         });
     });
@@ -502,7 +491,7 @@ chatRoom.sockets.on('connection', function(socket) {
                                         message: 'You are already friends!'
                                     });
                                 }
-                            };
+                            }
                             var newPrivateChat = new PrivateChatSchema({
                                 users: [params.username, friend.username],
                                 messages: []
@@ -570,11 +559,6 @@ chatRoom.sockets.on('connection', function(socket) {
                             message: 'User does not exist'
                         });
                     }
-                })
-            } else {
-                return responseFn({
-                    result: 'fail',
-                    message: 'Not authorized'
                 });
             }
         });
@@ -648,11 +632,6 @@ chatRoom.sockets.on('connection', function(socket) {
                         result: 'fail',
                         message: 'Friend does not exist'
                     });
-                });
-            } else {
-                return responseFn({
-                    result: 'fail',
-                    message: 'Not authorized'
                 });
             }
         });
@@ -834,11 +813,6 @@ chatRoom.sockets.on('connection', function(socket) {
                         });
                     }
                 });
-            } else {
-                return responseFn({
-                    result: 'fail',
-                    message: 'Not authorized!'
-                });
             }
         });
     });
@@ -904,11 +878,6 @@ chatRoom.sockets.on('connection', function(socket) {
                             message: 'Please log in again!'
                         });
                     }
-                });
-            } else {
-                return responseFn({
-                    result: 'fail',
-                    message: 'Not authorized!'
                 });
             }
         });

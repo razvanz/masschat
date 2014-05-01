@@ -213,7 +213,7 @@ $(document).ready(function() {
         sendMessage: sendMessage,
         newFriendUsername: newFriendUsername
     };
-    var socket = io.connect("http://localhost:8080");
+    var socket = io.connect("https://masschat2-c9-rusell.c9.io/");
     socket.on('newMessage', function(data) {
         newMessageReceived(data);
     });

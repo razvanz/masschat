@@ -38,7 +38,10 @@ app.get('/', function (req, res) {
 }); 
 
 app.get('/chat', function (req, res) {
-    res.render('chat');
+    if (!req.cookies.username || !req.cookies.token){
+        return res.redirect('/login');
+    }
+    return res.render('chat');
 });
 
 app.get('/login', function (req, res) {
@@ -459,8 +462,6 @@ chatRoom.sockets.on('connection', function(socket) {
                 } else {
                     return false;
                 }
-            } else {
-                return false;
             }
         });
     });
@@ -493,7 +494,7 @@ chatRoom.sockets.on('connection', function(socket) {
                                         message: 'You are already friends!'
                                     });
                                 }
-                            };
+                            }
                             var newPrivateChat = new PrivateChatSchema({
                                 users: [params.username, friend.username],
                                 messages: []
@@ -561,7 +562,7 @@ chatRoom.sockets.on('connection', function(socket) {
                             message: 'User does not exist'
                         });
                     }
-                })
+                });
             }
         });
     });

@@ -19,11 +19,9 @@ Date.prototype.ourFormat = function(formatString) {
 };
 $(document).ready(function() {
     // to be loaded at login
-
     var cookieVars = loadCookie();
     var username = cookieVars.username;
     var user_token = cookieVars.token;
-
     var user = ko.observable(undefined),
         activeChat = ko.observable(undefined),
         newFriendUsername = ko.observable('');
@@ -230,12 +228,14 @@ $(document).ready(function() {
                     break;
                 }
             };
-        } else if (activeChat()._id() == data.groupChatId) {
-            for (var i = activeChat().users().length - 1; i >= 0; i--) {
-                if (activeChat().users()[i] === data.username) {
-                    activeChat().users.splice(i, 1);
-                }
-            };
+        } else if (activeChat()){ 
+            if (activeChat()._id() == data.groupChatId) {
+                for (var i = activeChat().users().length - 1; i >= 0; i--) {
+                    if (activeChat().users()[i] === data.username) {
+                        activeChat().users.splice(i, 1);
+                    }
+                };
+            }
         }
     });
     socket.on('newFriendship', function(data) {
@@ -261,8 +261,10 @@ $(document).ready(function() {
                 break;
             }
         };
-        if (activeChat()._id() == data.groupChatId) {
-            activeChat(undefined);
+        if (activeChat()){
+            if (activeChat()._id() == data.groupChatId) {
+                activeChat(undefined);
+            }
         }
     });
     socket.on('newUserOnGroup', function(data) {
@@ -272,8 +274,10 @@ $(document).ready(function() {
                 chatname: data.chatname,
                 groupChatId: data.groupChatId
             }));
-        } else if (activeChat()._id() == data.groupChatId) {
-            activeChat().users.push(data.username);
+        } else if (activeChat()){ 
+            if (activeChat()._id() == data.groupChatId) {
+                activeChat().users.push(data.username);
+            }
         }
     });
     socket.on('hasLeftChat', function(data) {
@@ -290,7 +294,10 @@ $(document).ready(function() {
                 if (user().privateChats()[i].username === data.username) return user().privateChats()[i].status('online');
             }
     });
-    socket.emit('loadChat', { username: username, token: user_token }, loadChat);
+    socket.emit('loadChat', {
+        username: username,
+        token: user_token
+    }, loadChat);
 
     function loadChat(data) {
         user(ko.mapping.fromJS(data));
@@ -299,14 +306,16 @@ $(document).ready(function() {
 
     function newMessageReceived(data) {
         if (data.privateChatId !== undefined) {
-            if (activeChat()._id() === data.privateChatId) {
-                socket.emit('messageReceived', {
-                    username: username,
-                    token: user_token,
-                    privateChatId: data.privateChatId,
-                    message: data.message
-                });
-                return activeChat().messages.push(ko.mapping.fromJS(data.message));
+            if (activeChat()) {
+                if (activeChat()._id() === data.privateChatId) {
+                    socket.emit('messageReceived', {
+                        username: username,
+                        token: user_token,
+                        privateChatId: data.privateChatId,
+                        message: data.message
+                    });
+                    return activeChat().messages.push(ko.mapping.fromJS(data.message));
+                }
             }
             for (var i = user().privateChats().length - 1; i >= 0; i--) {
                 if (user().privateChats()[i].privateChatId === data.privateChatId) {
@@ -314,14 +323,16 @@ $(document).ready(function() {
                 }
             };
         } else if (data.groupChatId !== undefined) {
-            if (activeChat()._id() === data.groupChatId) {
-                socket.emit('messageReceived', {
-                    username: username,
-                    token: user_token,
-                    groupChatId: data.groupChatId,
-                    message: data.message
-                });
-                return activeChat().messages.push(ko.mapping.fromJS(data.message));
+            if (activeChat()) {
+                if (activeChat()._id() === data.groupChatId) {
+                    socket.emit('messageReceived', {
+                        username: username,
+                        token: user_token,
+                        groupChatId: data.groupChatId,
+                        message: data.message
+                    });
+                    return activeChat().messages.push(ko.mapping.fromJS(data.message));
+                }
             }
             for (var i = user().groupChats().length - 1; i >= 0; i--) {
                 if (user().groupChats()[i].groupChatId === data.groupChatId) {
@@ -353,12 +364,12 @@ $(document).ready(function() {
         return 'Are you sure you want to leave the chat?';
     };
 
-    function loadCookie(){
+    function loadCookie() {
         var cookieVars = document.cookie.split(';');
         var result = {};
         for (var i = cookieVars.length - 1; i >= 0; i--) {
             cookieVars[i] = cookieVars[i].replace(/\s+/g, '');
-            result[cookieVars[i].substring(0,cookieVars[i].indexOf('='))] = cookieVars[i].substring(cookieVars[i].indexOf('=') + 1) ;
+            result[cookieVars[i].substring(0, cookieVars[i].indexOf('='))] = cookieVars[i].substring(cookieVars[i].indexOf('=') + 1);
         };
         return result;
     }

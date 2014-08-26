@@ -4,7 +4,6 @@ The idea behind this app is to facilitate and help people interact with each oth
 
 Technologies Used
 
-    nginx
     NodeJS
     MongoDB
     socket.io

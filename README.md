@@ -1,24 +1,37 @@
-MassChat! Web-based chat system
+# MassChat
 
-The idea behind this app is to facilitate and help people interact with each other through an easy to use system.
+### Description:
 
-Technologies Used
+MassChat is a web based chat system.
 
-    NodeJS
-    MongoDB
-    socket.io
+### Features:
 
-Application features
+  * **User management** - *register, login, logout*
+  * **Contact list** - *users can have a list of contacts*
+  * **User groups** - *users can create groups*
+  * **Groups management** - *the group's creator can manage users within the group*
+  * **Private chat** - *a user can send a personal message to one of his contacts*
+  * **Group chat** - *users within a group can exchange messages*
+  * **Real time messaging** - *messages are transmitted in real time*
+  * **Offline messaging** - *messages are stored in the database until the user logges in to see them*
 
-    User accounts
-    User friend list
-    Group chat
-    Instant messaging
 
-Installation
 
-The client application does not require any installation. The web server installation instructions are going to be specified in the README.md repository file.
+### Technologies Used:
 
-Documentation
+  * [MongoDB](http://mongodb.org/)
+  * [Express.js](http://expressjs.com/)
+  * [Angular.js](http://angularjs.org/)
+  * [Node.js](http://nodejs.org/)
+  * [Twitter Bootstrap](http://angular-ui.github.io/bootstrap/)
+  * [Socket.io](http://socket.io/)
 
-Documentation will be available on Google Docs and the README.md file.
+
+
+### Installation
+
+*Later to be provided.*
+
+### Documentation
+
+*Later to be provided.*

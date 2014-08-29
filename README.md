@@ -27,11 +27,71 @@ MassChat is a web based chat system.
   * [Socket.io](http://socket.io/)
 
 
+### Prerequisites:
 
-### Installation
+#### NodeJS
+Get it here: http://nodejs.org/dist/v0.10.30/node-v0.10.30.pkg
 
-*Later to be provided.*
+Or install it through homebrew:
+``` bash
+brew install node
+```
 
-### Documentation
+Take owenership of node directories:
+``` bash
+sudo chown -R `whoami` ~/.npm /usr/local/lib/node_modules
+```
 
-*Later to be provided.*
+#### bower
+``` bash
+npm install -g bower
+```
+
+#### gulp
+``` bash
+npm install -g gulp
+```
+
+#### Make git fetch packages with https:// instead of git:// to avoid random errors
+``` bash
+git config --global url."https://".insteadOf git://
+```
+
+
+### Development:
+
+Open a terminal/cmd and navigate to the target directory.
+
+Clone the project and change directory:
+``` bash
+git clone https://<username>@bitbucket.org/largesystemteam/masschat.git
+cd masschat/
+```
+
+
+Change branch to development:
+``` bash
+git fetch && git checkout development
+```
+Get node and bower packages:
+``` bash
+npm install && bower install
+```
+Branch out from development and begin to work on a feature:
+``` bash
+git checkout -b feat/myfeature development
+```
+Incorporate a finished feature:
+``` bash
+git checkout development
+git branch -d myfeature
+git push origin development
+```
+
+
+### Workflow
+
+``` bash
+gulp build
+gulp watch
+```

@@ -1,1 +1,0 @@
-{ "options" : { "create" : "groupChat" }, "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "masschat.groupChat", "name" : "_id_" } ] }

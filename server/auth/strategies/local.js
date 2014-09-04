@@ -1,11 +1,7 @@
 'use strict';
 
-/**
- * Module dependencies.
- */
 var passport = require('passport'),
-	LocalStrategy = require('passport-local')
-	.Strategy,
+	LocalStrategy = require('passport-local').Strategy,
 	Authentication = require('../authentication');
 
 module.exports = function () {

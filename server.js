@@ -31,6 +31,8 @@ require('./server/auth/passport')();
 
 // HTTP server to be redirected from
 
+var io = require('.server/config/sockets.js')(app);
+
 app.listen(config.port);
 // var httpsOptions = {
 //   key: fs.readFileSync('./server/ssl/privatekey.pem'),

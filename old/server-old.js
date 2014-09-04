@@ -23,7 +23,7 @@ var express =require('express'),
 /*****************************             ******************************/
 /************************************************************************/
 /************************************************************************/
-    
+
 app.engine('html', cons.swig);
 app.set('view engine', 'html');
 app.set('views', __dirname + "/public");
@@ -35,7 +35,7 @@ app.get('/', function (req, res) {
 //request = req
 //result = res
     res.render('main');
-}); 
+});
 
 app.get('/chat', function (req, res) {
     if (!req.cookies.username || !req.cookies.token){
@@ -49,7 +49,7 @@ app.get('/login', function (req, res) {
 });
 
 app.get('/register', function (req, res) {
-   res.render('register'); 
+   res.render('register');
 });
 
 app.get('*', function (req, res) {
@@ -64,9 +64,9 @@ app.post('/login', function (request, res) {
         res.redirect('login');
     } else {
         //login process
-        
+
         console.log("Looking for: " +username);
-        
+
         UserSchema.findOne({username: username}, 'username password token', function(err, user){
             if (err) {
                 handleError(err, 'database');
@@ -80,8 +80,8 @@ app.post('/login', function (request, res) {
                     // Insert session document
                     user.token = crypto.createHash('sha1').update(current_date + random).digest('hex');
                     user.save(function(err, updatedUser){
-                        if(err) 
-                            handleError(err, 'database', function(){ 
+                        if(err)
+                            handleError(err, 'database', function(){
                                 res.render('login', { errors : err.message()});
                             });
                         else if(updatedUser){
@@ -111,7 +111,7 @@ app.post('/login', function (request, res) {
 });
 
 app.post('/register', function (req, res) {
-   
+
     function validateSignup(username, password, verify, errors) {
         "use strict";
         var USER_RE = /^[a-zA-Z0-9_-]{3,20}$/;
@@ -134,7 +134,7 @@ app.post('/register', function (req, res) {
             return false;
         }
         return true;
-    }   
+    }
 
     var email = req.body.email
     var username = req.body.username
@@ -176,7 +176,7 @@ app.post('/register', function (req, res) {
         handleError(new Error('user did not validate for register'), 'data');
         return res.render("/register", errors);
     }
-    
+
 });
 
 chatRoom.sockets.on('connection', function(socket) {
@@ -331,7 +331,7 @@ chatRoom.sockets.on('connection', function(socket) {
             Received from client:
             params = {token, username, messageText, privateChatId || groupChatId}
             Response:
-                emmiting the message to all the chat users 
+                emmiting the message to all the chat users
                 {privateChatId || groupChatId, message: {username, text, datetime, seenBy: []}}
         */
         return userTokens.forEach(function(item, index, array) {

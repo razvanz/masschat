@@ -48,24 +48,22 @@ var serverTestfiles = [
     'server/utils/**/*.js'
 ];
 
-// gulp.task('compile-less', function () {
-//     return gulp.src('client/content/notos.less')
-//         .pipe(less())
-//         .pipe(autoprefixer('last 1 version'))
-//         .pipe(gulp.dest('.tmp/styles'))
-//         .pipe(size());
-// });
+gulp.task('compile-less', function () {
+    return gulp.src('client/content/app.less')
+        .pipe(less())
+        .pipe(autoprefixer('last 1 version'))
+        .pipe(gulp.dest('client/content/styles'))
+        .pipe(size());
+});
 
-// gulp.task('compress-css', ['compile-less'],function() {
-//     return gulp.src('.tmp/styles/**/*.css')
-//         .pipe(csso())
-//         .pipe(gulp.dest('dist/styles'));
+gulp.task('compress-css', ['compile-less'],function() {
+    return gulp.src('client/**/*.css')
+        .pipe(csso())
+        .pipe(gulp.dest('dist/styles'));
 
-// });
+});
 
-// gulp.task('styles', ['compile-less', 'compress-css'], function() {
-
-// });
+gulp.task('styles', ['compile-less', 'compress-css'], function() {});
 
 gulp.task('styles', function() {
     return;
@@ -119,7 +117,6 @@ gulp.task('fonts', function () {
     return bowerFiles()
         .pipe(filter('**/*.{eot,svg,ttf,woff}'))
         .pipe(flatten())
-        // .pipe(gulp.dest('.tmp/fonts'))
         .pipe(gulp.dest('dist/fonts'))
         .pipe(size());
 });
@@ -157,7 +154,7 @@ gulp.task('test-server', function() {
 gulp.task('test', ['test-client', 'test-server']);
 
 gulp.task('clean', function () {
-    return gulp.src(['.tmp', 'dist', 'coverage'], { read: false }).pipe(clean());
+    return gulp.src(['dist', 'coverage'], { read: false }).pipe(clean());
 });
 
 gulp.task('build', ['html', 'images', 'fonts', 'extras', 'test']);
@@ -225,7 +222,6 @@ gulp.task('watch', ['mongodb', 'connect', 'serve', 'tdd-client', 'tdd-server'], 
     // watch for changes
      gulp.watch([
         'client/**/*.html',
-        '.tmp/styles/**/*.css',
         'client/app/**/*.js',
         'client/content/images/**/*'
     ]).on('change', function (file) {

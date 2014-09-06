@@ -13,10 +13,10 @@ module.exports = {
 		lib: {
 			css: [],
 			js: [
-				'dist/scripts/vendor.js'
+				'scripts/vendor.js'
 			]
 		},
-		css: 'dist/styles/notos.css',
-		js: 'dist/scripts/app.js'
+		css: 'styles/app.css',
+		js: 'scripts/app.js'
 	}
 };

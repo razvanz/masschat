@@ -4,11 +4,6 @@ var _ = require('lodash'),
 	passport = require('passport'),
 	log = require('../models/log');
 
-
-exports.renderLogin = function(req, res, next){
-	res.render('login');
-};
-
 exports.login = function (req, res, next) {
 	passport.authenticate('local', function (err, user, info) {
 		if (err || !user) {
@@ -53,12 +48,16 @@ exports.me = function (req, res) {
 	res.jsonp(req.user || null);
 };
 
+exports.renderLogin = function(req, res, next){
+	res.render('login');
+};
+
 exports.renderRegister = function(req, res){
 	res.render('register');
 };
 
 exports.renderRecover = function(req, res){
-	res.render('register');
+	res.render('recover');
 };
 
 exports.register = function(req, res){

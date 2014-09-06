@@ -31,14 +31,14 @@ var Authentication = function(db) {
   };
 
   var findUser = function(authResult) {
-    User.oneWithOpts({username: authResult.credentials.username}, null, null, function(err, user){
+    User.oneWithOpts({username: authResult.credentials.username, email: authResult.credentials.username}, null, null, function(err, user){
       if(err){
         console.log(err);
         // log error
         authResult.message = 'Unable to find user. Internal error.';
         return self.emit('invalid', authResult);
       } else if(!user){
-        authResult.message = 'There is no existing user with this username.';
+        authResult.message = 'No user found with this username or email address.';
         return self.emit('invalid', authResult);
       }
       authResult.user = user;

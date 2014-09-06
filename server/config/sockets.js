@@ -1,6 +1,6 @@
 'use strict';
 
-var config = require('.config'),
+var config = require('./config'),
 	path = require('path'),
 	http = require('http'),
 	socket_io = require('socket.io');

@@ -1,8 +1,70 @@
-{% extends 'layout.html' %}
+{% extends 'layout.html' %} {% block content %}
 
-
-{% block content %}
-<div>
+<div id="login-view" class="container">
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="row">
+        <div class="col-md-4 brand-img-logo">
+          <img src="/images/logo.png" class="brand-img">
+        </div>
+        <div class="col-md-7 col-md-offset-1">
+          <div class="row">
+            <form name="login-form" method="POST" submit="/login" role="form">
+              <div class="col-md-12">
+                <h3 id="welcome-msg">MassChat</h3>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <div class="input-group col-sm-12">
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    <input class="form-control" type="text" name="username" id="username" placeholder="USERNAME OR EMAIL" />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <div class="input-group col-sm-12">
+                  <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                  <input class="form-control" type="password" name="password" id="password" placeholder="PASSWORD" />
+                </div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success">LOGIN</button>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group navigate-link">
+                  <div class="pull-right">
+                    <a href="/recover">RECOVER ACCOUNT</a>
+                    <i class="fa fa-arrow-circle-right"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group navigate-link">
+                  <div class="pull-right">
+                    <a href="/register">REGISTER</a>
+                    <i class="fa fa-arrow-circle-right"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 form-errors">
+                  {% for error in loginErrors %}
+                  <div class="alert alert-danger" role="alert">
+                      <strong>{{error}}</strong>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

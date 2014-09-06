@@ -60,7 +60,8 @@ node_modules
 dist
 
 #.tmp
-client/bower_components
+temp/**
+bower_components
 
 #WebStorm project metadata stuff
 .idea/

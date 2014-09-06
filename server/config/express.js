@@ -8,6 +8,7 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
 	compress = require('compression'),
+	favicon = require('serve-favicon'),
 	methodOverride = require('method-override'),
 	cookieParser = require('cookie-parser'),
 	helmet = require('helmet'),
@@ -36,6 +37,9 @@ module.exports = function (db) {
 	app.locals.keywords = config.app.keywords;
 	app.locals.jsFiles = config.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
+
+	// Favicon
+	app.use(favicon(path.resolve('server/views/favicon.ico')));
 
 	// Passing the request url to environment locals
 	app.use(function (req, res, next) {
@@ -66,6 +70,8 @@ module.exports = function (db) {
 	if (process.env.NODE_ENV === 'development') {
 		// Enable logger (morgan)
 		app.use(morgan('dev'));
+
+		app.use(express.static(path.resolve('temp')));
 
 		// Disable views cache
 		app.set('view cache', false);
@@ -103,7 +109,7 @@ module.exports = function (db) {
 
 	// form with files
 	app.use(multer({
-		dest: './uploads/'
+		dest: './temp/'
 	}));
 
 	// use passport session
@@ -127,11 +133,6 @@ module.exports = function (db) {
 	//   }
 	//   next();
 	// });
-
-	// Setting the app router and static folder
-	app.use(express.static(path.resolve('./client')));
-	app.use(express.static(path.resolve('.tmp')));
-	// app.use(express.static(path.resolve('./downloads')));
 
 	// Globbing routing files
 	config.getGlobbedFiles('./server/routes/*.js')

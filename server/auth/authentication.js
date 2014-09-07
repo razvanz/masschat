@@ -31,7 +31,8 @@ var Authentication = function(db) {
   };
 
   var findUser = function(authResult) {
-    User.oneWithOpts({username: authResult.credentials.username, email: authResult.credentials.username}, null, null, function(err, user){
+    var criteria = (authResult.credentials.username.indexOf('@') === -1) ? {username: authResult.credentials.username} : {email: authResult.credentials.username};
+    User.oneWithOpts(criteria, null, null, function(err, user){
       if(err){
         console.log(err);
         // log error

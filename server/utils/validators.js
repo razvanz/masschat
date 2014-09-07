@@ -1,7 +1,6 @@
-exports.isPositiveNumber = function(val){
-  return val > 0;
+exports.validateLocalStrategyProperty = function (property) {
+  return ((this.provider !== 'local' && !this.updated) || property.length);
 };
-
-exports.isInteger = function(val){
-  return (val * 10) % 10 === 0;
+exports.validateLocalStrategyPassword = function (password) {
+  return (this.provider !== 'local' || (password && password.length > 4));
 };

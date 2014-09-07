@@ -5,26 +5,32 @@ var _ = require('lodash'),
 	log = require('../../models/log'),
 	User = require('../../models/user');
 
-exports.getUsers = function (req, res) {
+exports.list = function (req, res) {
 	var users = User.getAllUsers();
 	res.jsonp(200, users);
 };
 
+exports.userById = function (req, res) {
+
+};
+
 exports.createUser = function (req, res) {
-	User.createUser(req.body);
-	log.createLog({
-		eventId: 2,
-		eventType: 'createUser',
-		userId: req.user.id,
-		eventText: 'User ' + req.user.id + ' created user ' + req.body.id + ' succesfully',
-		eventTime: new Date()
+	User.insert(req.body, function(err, user){
+		if(err){
+			return res.send(500);
+		}
+
+		return res.send(200);
 	});
 };
 
-exports.insertUser = function(req, res){
-	User.insert();
-}
+exports.updateUser = function (req, res) {
 
+};
+
+exports.deleteUser = function (req, res) {
+
+};
 
 /**
 * User authorizations routing middleware

@@ -44,7 +44,7 @@ var serverTestfiles = [
  ******	Common
  *******************************************/
 gulp.task('mongodb', shell.task([
-	// 'mongo --eval "db.getSiblingDB(\'admin\').shutdownServer()"',
+	'mongo --eval "db.getSiblingDB(\'admin\').shutdownServer()"',
 	'mongod --dbpath ./db']));
 
 gulp.task('clean', function () {
@@ -198,7 +198,7 @@ gulp.task('watch', ['compile-client'], function () {
 		livereload.changed(event.path);
 	});
 	gulp.watch('client/app/**/*.html', ['html']);
-	gulp.watch('client/content/styles/*.less', ['compile-less']);
+	gulp.watch('client/content/styles/**/*.less', ['compile-less']);
 	gulp.watch('client/app/**/*.js', ['jshint', 'scripts']);
 	gulp.watch('client/content/images/**/*.*', ['images']);
 	gulp.watch('bower.json', ['wiredep']);

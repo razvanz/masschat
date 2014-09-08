@@ -1,3 +1,23 @@
 <nav id="groups" role="navigation">
-  test
+  <div id="new-group">
+    <ul class="nav">
+      <li>
+        <a ng-click="groups.addNew()">
+          <i class="fa fa-plus fa-2x"></i>
+          <span>NEW GROUP</span>
+        </a>
+      </li>
+      <ul>
+  </div>
+  <div id="group-list-container">
+    <ul id="group-list" class="nav">
+      <li class="group-li">
+        <a ng-click="groups.loadGroupChat()">
+          <img class="group-img" src="images/default-group.jpg"/>
+          <span class="group-name">Group 1</span>
+          <i class="fa fa-circle text-success"></i>
+        </a>
+      </li>
+    <ul>
+  </div>
 </nav>

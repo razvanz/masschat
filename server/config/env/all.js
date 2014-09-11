@@ -16,7 +16,7 @@ module.exports = {
         lib: {
             css: [
               // 'temp/lib/*.js',
-              'temp/lib/toaster.js'
+              'temp/lib/toaster.css'
             ],
             js: [
               'temp/lib/angular.js', //angular must load first

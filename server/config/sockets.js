@@ -6,8 +6,8 @@ var config = require('./config'),
 	socket_io = require('socket.io');
 
 module.exports = function (app) {
-	var io = socket_io(http.Server(app));
-
+	var io = socket_io(app);
+	
   config.getGlobbedFiles('./server/socket-rooms/*.js')
     .forEach(function (socketRoom) {
       require(path.resolve(socketRoom))(io);

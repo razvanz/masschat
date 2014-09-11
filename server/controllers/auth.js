@@ -2,7 +2,8 @@
 
 var _ = require('lodash'),
 	passport = require('passport'),
-	log = require('../models/log');
+	SysLog = require('../models/sysLog'),
+	Log = require('../models/log');
 
 exports.login = function (req, res, next) {
 	passport.authenticate('local', function (err, user, info) {
@@ -21,20 +22,26 @@ exports.login = function (req, res, next) {
 };
 
 exports.logout = function (req, res) {
-	log.createLog({
-		eventId: 2,
-		eventType: 'logout',
-		userId: req.user._id,
-		eventText: 'User logged out succesfully',
-		eventTime: new Date()
+	SysLog.insert({
+		user: req.user._id,
+		sysLogType: 'logout',
+		sysLogDesc: 'Successfull logout',
+		sysLogData: null
 	});
 	req.logout();
 	res.redirect('/');
 };
 
 exports.getLogs = function (req, res) {
-	var logs = log.getAllLogs();
-	res.jsonp(200, logs);
+	SysLog.allWithOpts({user: req.user._id}, function(err, sysLogs){
+		if(!err)
+			return Log.allWithOpts({user: req.user._id}, function(err, userLogs){
+				if(!err)
+					return res.jsonp(sysLogs.concat(userLogs));
+			})
+		else
+			return res.send(500);
+	});
 };
 
 exports.requiresLogin = function (req, res, next) {

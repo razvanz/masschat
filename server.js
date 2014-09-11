@@ -3,46 +3,51 @@
  * Module dependencies.
  */
 
-var https = require('https');
-var fs = require('fs');
+var https = require('https'),
+	http = require('http'),
+	fs = require('fs'),
+	db, app, appServer;
 
 require('./server/config/init')();
 
 var config = require('./server/config/config'),
-    mongoose = require('mongoose');
+	database = require('./server/config/database');
 /**
  * Main application entry file.
  * Please note that the order of loading is important.
  */
 
 // Bootstrap db connection
-var db = mongoose.connect(config.db, function(err) {
+db = database(config.db, function (err) {
 	if (err) {
-		console.error('\x1b[31m', 'Could not connect to MongoDB!');
-		console.log(err);
+		console.error('\x1b[31m%s\x1b[0m', 'Could not connect to MongoDB: [' + err + ']');
 	}
 });
 
 // Init the express application
-var app = require('./server/config/express')(db);
+app = require('./server/config/express')(db);
 
 // Bootstrap passport config
 require('./server/auth/passport')();
 
-// HTTP server to be redirected from
+// HTTP
 
-var io = require('./server/config/sockets.js')(app);
+appServer = http.createServer(app)
+	.listen(config.port);
 
-app.listen(config.port);
+// HTTPS
+
 // var httpsOptions = {
 //   key: fs.readFileSync('./server/ssl/privatekey.pem'),
 //   cert: fs.readFileSync('./server/ssl/certificate.pem')
 // };
-//
-// https.createServer(httpsOptions, app).listen(config.port);
+// appServer = https.createServer(httpsOptions, app).listen(config.port);
 
-// Expose app
-exports = module.exports = app;
+// Bind socket.io to the server
+require('./server/config/sockets')(appServer);
 
 // Logging initialization
 console.log('MassChat on port ' + config.port + '(' + process.env.NODE_ENV + ')');
+
+// Expose app
+exports = module.exports = app;

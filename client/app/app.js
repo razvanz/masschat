@@ -35,8 +35,9 @@
 				.then(function (res) {
 					var lastPath = ($cookies.lastPath !== undefined && typeof $cookies.lastPath === 'string') ?
 						$cookies.lastPath : 'main.chat',
-						lastPathParam = ($cookies.lastPathParams !== undefined && typeof $cookies.lastPathParams === 'string') ?
-							$cookies.lastPathParams : undefined;
+						lastPathParam = ($cookies.lastPathParams !== undefined && typeof $cookies.lastPathParams ===
+							'string') ?
+						$cookies.lastPathParams : undefined;
 
 					// when user comes back he is redirected to his last view
 					$rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
@@ -58,7 +59,7 @@
 	runApp.$inject = ['$rootScope', '$state', 'init', '$cookies'];
 
 	var app = angular.module('app', [
-		'ngAnimate', 'ui.router', 'ngSanitize', 'ui.bootstrap', 'debounce', 'ngCookies', 'toaster'
+		'ngAnimate', 'ui.router', 'ngSanitize', 'ui.bootstrap', 'debounce', 'ngCookies', 'toaster', 'btford.socket-io'
   ]);
 
 	app.service('session', Session)

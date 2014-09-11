@@ -2,7 +2,7 @@
 
 var _ = require('lodash'),
 	passport = require('passport'),
-	log = require('../../models/log'),
+	SysLog = require('../../models/sysLog'),
 	User = require('../../models/user');
 
 exports.list = function (req, res) {
@@ -44,13 +44,6 @@ exports.hasAuthorization = function (roles) {
 				.length) {
 				return next();
 			} else {
-				log.createLog({
-					eventId: 2,
-					eventType: 'authorization',
-					userId: req.user.id,
-					eventText: 'User failed authorization on ' + req.url,
-					eventTime: new Date()
-				});
 				return res.send(403, {
 					message: 'User is not authorized'
 				});

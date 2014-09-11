@@ -82,6 +82,7 @@ module.exports = function (db) {
 
 	// Request body parsing middleware should be above methodOverride
 	app.use(bodyParser.urlencoded({
+		extended: true,
 		limit: '25mb'
 	}));
 	app.use(bodyParser.json({
@@ -98,12 +99,14 @@ module.exports = function (db) {
 	// Express MongoDB session storage
 	app.use(session({
 		secret: config.sessionSecret,
+		saveUninitialized: true,
+		resave: true,
 		store: new mongoStore({
 			db: db.connection.db,
 			collection: config.sessionCollection,
-      cookie:{
-        maxAge: 15 * 60000 // user will be timeout after 15 min
-      }
+			cookie: {
+				maxAge: 15 * 60000 // user will be timeout after 15 min
+			}
 		})
 	}));
 

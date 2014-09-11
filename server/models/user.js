@@ -27,7 +27,7 @@ var UserSchema = new Schema({
 	},
 	username: {
 		type: String,
-		unique: 'testing error message',
+		unique: true,
 		required: 'Please fill in a username',
 		trim: true
 	},
@@ -96,17 +96,16 @@ UserSchema.methods.authenticate = function (password) {
  * Find possible not used username
  */
 exports.findUniqueUsername = UserSchema.statics.findUniqueUsername = function (username, suffix, callback) {
-	var _this = this;
 	var possibleUsername = username + (suffix || '');
 
-	_this.findOne({
+	User.findOne({
 		username: possibleUsername
 	}, function (err, user) {
 		if (!err) {
 			if (!user) {
 				callback(possibleUsername);
 			} else {
-				return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
+				return User.findUniqueUsername(username, (suffix || 0) + 1, callback);
 			}
 		} else {
 			callback(null);
@@ -114,7 +113,7 @@ exports.findUniqueUsername = UserSchema.statics.findUniqueUsername = function (u
 	});
 };
 
-var User = mongoose.model('User', UserSchema);
+var User = mongoose.models['User'] || mongoose.model('User', UserSchema);
 
 exports.schema = UserSchema;
 exports.model = User;
@@ -161,23 +160,13 @@ exports.update = function (query, extend, callback) {
 	if (query._id) {
 		query._id = mongoose.Types.ObjectId(query._id);
 	}
-	User.findOne(query, function (err, user) {
-		if (err)
-			return callback(err);
-		else if (!user) {
-			return callback(
-				new Error('The entry to update is nonexistent!'));
-		}
-		user = _.extend(user, extend);
-		user.modified = new Date()
-			.getTime();
-		user._ver = user._ver + 1;
-		return user.save(callback);
-	});
+	extend.updated = new Date()
+		.getTime();
+	User.findOneAndUpdate(query, extend, callback);
 };
 
 exports.remove = function (query, callback) {
-	if (!query._id) {
+	if (query._id) {
 		query._id = mongoose.Types.ObjectId(query._id);
 	}
 	User.findOne(query, function (err, user) {
@@ -189,4 +178,8 @@ exports.remove = function (query, callback) {
 		}
 		return user.remove(callback);
 	});
+};
+
+exports.removeAll = function (callback) {
+	return mongoose.connection.db.dropCollection('Users', callback);
 };

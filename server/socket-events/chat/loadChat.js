@@ -1,9 +1,9 @@
 'use strict';
 
-var User = require('../models/user');
+// var User = require('../models/user');
 
 module.exports = function(socket){
-  socket.on('loadChat', function(data){
-    return;
-  });
+  // socket.on('loadChat', function(data){
+  //   return;
+  // });
 };

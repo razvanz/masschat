@@ -3,7 +3,7 @@
 var events = require('events');
 var util = require('util');
 var bcrypt = require('bcrypt-nodejs');
-var log = require('../models/log');
+var SysLog = require('../models/log');
 var User = require('../models/user');
 
 var AuthResult = function(credentials) {
@@ -60,7 +60,12 @@ var Authentication = function(db) {
   var authOk = function(authResult) {
     authResult.succes = true;
     authResult.message = 'User logged in succesfully';
-    log.createLog({eventId: 1, eventType: 'login', userId: authResult.user._id, eventText: authResult.message, eventTime: new Date()});
+    SysLog.insert({
+      user: authResult.user._id,
+      sysLogType: 'login',
+      sysLogDesc: 'Successfull login',
+      sysLogData: {result: true}
+    });
     self.emit('authenticated', authResult);
     self.emit('completed', authResult);
     if(continueWith) {
@@ -73,7 +78,12 @@ var Authentication = function(db) {
     if(!authResult.user) {
       authResult.user = {_id: -1};
     }
-    log.createLog({eventId: 1, eventType: 'login', userId: authResult.user._id, eventText: authResult.message, eventTime: new Date()});
+    SysLog.insert({
+      user: authResult.user._id,
+      sysLogType: 'login',
+      sysLogDesc: 'Unsuccessful login',
+      sysLogData: null
+    });
     self.emit('not-authenticated', authResult);
     self.emit('completed', authResult);
     if(continueWith) {

@@ -15,6 +15,8 @@ var autoprefixer = require('gulp-autoprefixer'),
 	jasmine = require('gulp-jasmine'),
 	jshint = require('gulp-jshint'),
 	karma = require('gulp-karma'),
+	karmaServer = require('karma')
+	.server,
 	less = require('gulp-less'),
 	livereload = require('gulp-livereload'),
 	concat = require('gulp-concat'),
@@ -28,11 +30,11 @@ var autoprefixer = require('gulp-autoprefixer'),
 	path = require('path');
 
 var clientTestFiles = [
-    	'temp/!(lib)/**/*.{js,html}'
+    	// 'temp/scripts/**/*.js'
 		],
 	clientTestLib = [
-			'temp/lib/angular.js', // make sure angular loads first
-			'temp/lib/*.*'
+			'temp/lib/angular.js' // make sure angular loads first
+			// 'temp/lib/*.js'
 		];
 
 var serverTestFiles = [
@@ -186,17 +188,25 @@ gulp.task('watch', ['compile-client'], function () {
 /*******************************************
  ******	Test
  *******************************************/
+// gulp.task('test-client', ['compile-client'], function (cb) {
+// 	console.log('\n\n\tTEST CLIENT: \n');
+// 	return gulp.src(clientTestLib.concat(clientTestFiles))
+// 		.pipe(karma({
+// 			configFile: './karma.conf.js',
+// 			action: 'run'
+// 		}))
+// 		.on('error', function (err) {
+// 			logErr(err);
+// 		})
+// 		// .on('finish', cb);
+// });
+
 gulp.task('test-client', ['compile-client'], function (cb) {
 	console.log('\n\n\tTEST CLIENT: \n');
-	gulp.src(clientTestLib.concat(clientTestFiles))
-		.pipe(karma({
-			configFile: './karma.conf.js',
-			action: 'run'
-		}))
-		.on('error', function (err) {
-			logErr(err);
-		})
-		.on('finish', cb);
+	karmaServer.start({
+		configFile: __dirname + '/karma.conf.js',
+		singleRun: true
+	}, cb);
 });
 
 gulp.task('test-server', function (cb) {
@@ -226,16 +236,23 @@ gulp.task('chain-test', ['test-server'], function () {
 gulp.task('test', ['chain-test']);
 
 
+// gulp.task('tdd-client', ['compile-client'], function (cb) {
+// 	gulp.src(clientTestLib.concat(clientTestFiles))
+// 		.pipe(karma({
+// 			configFile: './karma.conf.js',
+// 			action: 'watch'
+// 		}))
+// 		.on('error', function (err) {
+// 			logErr(err);
+// 		})
+// 		.on('end', cb);
+// });
+
 gulp.task('tdd-client', ['compile-client'], function (cb) {
-	gulp.src(clientTestLib.concat(clientTestFiles))
-		.pipe(karma({
-			configFile: './karma.conf.js',
-			action: 'watch'
-		}))
-		.on('error', function (err) {
-			logErr(err);
-		})
-		.on('end', cb);
+	karmaServer.start({
+		configFile: __dirname + '/karma.conf.js',
+		singleRun: false
+	}, cb);
 });
 
 gulp.task('tdd-server', ['test-server'], function () {

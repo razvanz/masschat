@@ -19,12 +19,12 @@ var LogSchema = new Schema({
     required: 'Logs must be based on a user!'
   },
   logType: {
-		type: [{
-			type: String,
-			enum: ['create', 'read', 'update', 'delete', 'uncategorized']
-		}],
+    type: [{
+      type: String,
+      enum: ['create', 'read', 'update', 'delete', 'uncategorized']
+  }],
     default: ['uncategorized']
-	},
+  },
   logDesc: {
     type: String,
     trim: true
@@ -34,7 +34,10 @@ var LogSchema = new Schema({
   },
   timestamp: {
     type: Date,
-    default: function(){return new Date().getTime();}
+    default: function () {
+      return new Date()
+        .getTime();
+    }
   }
 }, logSchemaOpts);
 

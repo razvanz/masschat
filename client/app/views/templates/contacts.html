@@ -2,7 +2,7 @@
   <div id="new-contact">
     <ul class="nav">
       <li>
-        <a ng-click="contacts.addNew()">
+        <a ng-click="contacts.addContact()">
           <i class="fa fa-plus fa-2x"></i>
           <span>ADD CONTACT</span>
         </a>
@@ -11,69 +11,13 @@
   </div>
   <div id="contact-list-container">
     <ul id="contact-list" class="nav">
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
+      <li class="contact-li" ng-repeat="contact in contacts.list track by $index | orderBy:'contact.displayName'">
+        <a ng-click="contacts.loadContactChat(contact._id)">
+          <img class="user-img" gravatar-src="contact.email" gravatar-size="35" />
+          <span class="user-name">{{contact.displayName}}</span>
+          <i class="fa fa-circle {{contacts.resolveStatusClass(contact.status)}}"></i>
         </a>
       </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1 dasd adas das ads da sd asdas dadas da sda</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-      <li class="contact-li">
-        <a ng-click="contact.loadContactChat()">
-          <img class="user-img" src="images/default-user.jpg"/>
-          <span class="user-name">Contact 1</span>
-          <i class="fa fa-circle text-success"></i>
-        </a>
-      </li>
-    <ul>
+      <ul>
   </div>
 </nav>

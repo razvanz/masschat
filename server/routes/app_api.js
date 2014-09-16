@@ -2,7 +2,9 @@
 
 module.exports = function (app) {
 	var auth = require('../controllers/auth'),
-		users = require('../controllers/app_api/users');
+		users = require('../controllers/app_api/users'),
+		privateChats = require('../controllers/app_api/privateChats'),
+		groupChats = require('../controllers/app_api/groupChats');
 
 	// GET /app/entity/ — Gets all entities
 	// GET /app/entity/1 — Gets the entity with ID 1
@@ -18,4 +20,10 @@ module.exports = function (app) {
 		.put(auth.requiresLogin, users.updateUser)
 		.delete(auth.requiresLogin, users.deleteUser);
 
+
+	// Complex
+	app.route('/contacts')
+		.get(auth.requiresLogin, privateChats.contactList);
+	app.route('/groups')
+		.get(auth.requiresLogin, groupChats.groupList);
 };

@@ -72,9 +72,9 @@ describe("User Model", function () {
 	});
 
 	it('should authenticate users with right password', function (done) {
-		User.one({
+		User.oneWithOpts({
 			username: user.username
-		}, function (err, theUser) {
+		}, 'username password salt', null,function (err, theUser) {
 			expect(theUser.authenticate(user.password))
 				.toEqual(true);
 			done();

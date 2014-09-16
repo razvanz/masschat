@@ -1,13 +1,41 @@
-( function () {
-    'use strict';
+(function () {
+  'use strict';
 
-    var contactsCtrl = function(){
-      var self = this;
+  var contactsCtrl = function (modalService) {
+    var self = this;
 
+    self.list = [{
+      _id: '123123123123123123',
+      username: 'mama',
+      displayName: 'Mama user',
+      email: 'razvan@sharkcell.dk'
+    }];
+
+    self.loadContactChat = function (contactId) {
+      console.log(contactId);
     };
 
-    contactsCtrl.$inject = [];
+    self.resolveStatusClass = function (userStatus) {
+      return '';
+    };
 
-    angular.module( 'app' ).controller( 'contactsCtrl', contactsCtrl );
+    self.addContact = function () {
+      var modalDefaults = {
+        templateUrl: 'layout/views/modals/addContact.html',
+        controller: 'addContactCtrl',
+        // controllerAs: 'addContact',
+        resolve: {}
+      };
+      modalService.showModal(modalDefaults, {})
+        .then(function (result) {
 
-} )();
+        });
+    };
+  };
+
+  contactsCtrl.$inject = ['modalService'];
+
+  angular.module('app')
+    .controller('contactsCtrl', contactsCtrl);
+
+})();

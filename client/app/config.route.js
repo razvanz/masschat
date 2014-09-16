@@ -27,10 +27,14 @@
 						authorize: ['admin', 'user']
 					},
 					resolve: {
-						// datatypes: ['$http',
-						// 	function ($http) {
-						// 		return $http.get('/app/main');
-						// }]
+						contacts: ['$http',
+							function ($http) {
+								return $http.get('/contacts');
+						}],
+						groups: ['$http',
+							function ($http) {
+								return $http.get('/groups');
+						}]
 					}
 				}
 			},

@@ -4,17 +4,19 @@
 ::-webkit-scrollbar {
   /* for vertical scrollbars */
   /* for horizontal scrollbars */
-  border       : none;
+  border: none;
   border-radius: 0;
-  box-shadow   : none;
-  height       : 8px;
-  width        : 8px;
+  box-shadow: none;
+  height: 8px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
+
   background: #f3f3f3;
   box-shadow: inset 0 0 5px #999;
 }
 ::-webkit-scrollbar-thumb {
+
   background: #999;
 }
 html {
@@ -24,67 +26,69 @@ html,
 body,
 #applicationHost,
 .full-height {
-  height    : 100%;
+  height: 100%;
   min-height: 100%;
 }
 body {
-  //position: fixed;
+  //position: fixed;
   -webkit-font-smoothing: antialiased;
-  color                 : @font-color;
-  width                 : 100%;
+  color: @font-color;
+  width: 100%;
 }
 #app-main {
-  -moz-box-sizing   : border-box;
+  -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  box-sizing        : border-box;
-  height            : 100%;
-  min-height        : 100%;
-  overflow          : hidden;
-  padding-top       : 52px;
-  position          : relative;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  padding-top: 52px;
+  position: relative;
 }
 #groups-container,
 #contacts-container,
 #chat-main {
-  height    : 100%;
+  height: 100%;
   min-height: 100%;
-  overflow  : none;
+  overflow: none;
 }
 #groups,
 #contacts {
   height: 100%;
-  width : 100%;
+  width: 100%;
 }
 #new-group,
 #new-contact {
-  height    : 40px;
-  left      : 0;
-  max-height: 40px;
-  min-height: 40px;
-  position  : absolute;
-  right     : 0;
-  top       : 0;
+  box-shadow: 0 2px 2px -2px lighten(@font-color, 15%);
+  height: 38px;
+  left: 0;
+  max-height: 38px;
+  min-height: 38px;
+  position: absolute;
+  right: 0;
+  top: 0;
   & .nav >li>a {
-    box-shadow: 0 2px 2px -2px lighten(@font-color, 15%);
+
   }
+
 }
 #group-list-container,
 #contact-list-container {
-  height     : 100%;
+  height: 100%;
   padding-top: 40px;
 }
 #group-list,
 #contact-list {
-  height    : 100%;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
 }
 #groups-container,
 #contacts-container {
-  // background-color: @brand-color;
+  // background-color: @brand-color;
   background-color: darken(@bg-color, 7%);
-  padding-left    : 0;
-  padding-right   : 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 .splash-spinner {
   margin-top: 20%;
@@ -93,7 +97,7 @@ body {
 #groups,
 #contacts {
   height: 100%;
-  width : 100%;
+  width: 100%;
   a {
     color          : lighten(@font-color, 15%);
     display        : block;
@@ -102,67 +106,63 @@ body {
     text-align     : left;
     text-decoration: none;
     .fa-circle {
-      // Status icon is smaller
+      // Status icon is smaller
       float    : right;
       font-size: 10px;
       padding  : 12px 5px;
     }
     >i {
-      padding-right : 10px;
+      padding-right: 10px;
       vertical-align: middle;
     }
+
   }
   li {
     &:hover {
       background-color: @bg-color;
     }
   }
+
 }
 #group-list,
 #contact-list {
-  height    : 100%;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  width     : 100%;
+  width: 100%;
 }
 .my-img {
-  height    : 30px;
+  height: 30px;
   margin-top: -5px;
-  width     : 30px;
+  width: 30px;
 }
 .group-img,
 .user-img {
   height: 35px;
-  width : 35px;
+  width: 35px;
 }
 .group-name,
 .user-name {
-  display       : inline-block;
-  font-weight   : 700;
-  max-width     : 150px;
-  overflow      : hidden !important;
-  padding-left  : 5px;
-  text-overflow : ellipsis;
+  display: inline-block;
+  font-weight: 700;
+  max-width: 150px;
+  overflow: hidden !important;
+  padding-left: 5px;
+  text-overflow: ellipsis;
   vertical-align: middle;
-  white-space   : nowrap;
+  white-space: nowrap;
 }
 .nav-tabs {
-  & > li.active > a, li.active > a:hover, li.active > a            :focus {
-    background-color   : darken(@bg-color, 7%);
-    border             : 1px solid darken(@bg-color, 20%);
-    border-bottom-color: transparent;
-    color              : @font-color;
-  }
-  left                            : 0;
-  min-height                      : 40px;
-  overflow-x                      : auto;
-  overflow-y                      : hidden;
-  position                        : absolute;
-  top                             : 0;
-  white-space                     : nowrap;
+  left: 0;
+  min-height: 40px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: absolute;
+  right: 0;
+  top: 0;
   & > li {
     display: inline-block;
-    float  : none;
+    float: none;
     & > a {
       color          : @font-color;
       display        : block;
@@ -174,48 +174,58 @@ body {
       text-decoration: none;
       & > .tab-heading {
         & > .fa-circle {
-          // Status icon is smaller
+          // Status icon is smaller
           font-size: 10px;
-          padding  : 4px 4px;
+          padding  : 4px;
         }
         & > .fa-times {
-          // Status icon is smaller
+          // Status icon is smaller
           font-size: 15px;
-          padding  : 0 0;
+          padding  : 0;
         }
       }
     }
+
+  }
+  & > li.active > a,
+  li.active > a:hover,
+  li.active > a:focus {
+    background-color: darken(@bg-color, 7%);
+    border: 1px solid darken(@bg-color, 20%);
+    border-bottom-color: transparent;
+    color: @font-color;
+
   }
   .tab-title {
-    display      : inline-block;
-    overflow     : hidden !important;
+    display: inline-block;
+    overflow: hidden !important;
     text-overflow: ellipsis;
-    white-space  : nowrap;
-    width        : 70px;
+    white-space: nowrap;
+    width: 70px;
   }
-  right                           : 0;
+  white-space: nowrap;
 }
 .tab-content {
-  min-height : 100%;
+  min-height: 100%;
   padding-top: 40px;
 }
 .tab-pane.active {
-  bottom  : 0;
-  left    : 0;
+  bottom: 0;
+  left: 0;
   position: absolute;
-  right   : 0;
-  top     : 40px;
+  right: 0;
+  top: 40px;
 }
 .chat-room {
   min-height: 100%;
   .chat-msgs {
-    bottom    : 50px;
-    left      : 0;
+    bottom: 50px;
+    left: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    position  : absolute;
-    right     : 0;
-    top       : 0;
+    position: absolute;
+    right: 0;
+    top: 0;
   }
   .msg-input {
     max-height: 50px;
@@ -230,15 +240,16 @@ body {
   }
   .msg-send {
     background-color: darken(@bg-color, 20%);
-    cursor          : pointer;
+    cursor: pointer;
   }
   .new-message {
-    bottom  : 0;
-    height  : 50px;
-    left    : 0;
+    bottom: 0;
+    height: 50px;
+    left: 0;
     position: absolute;
-    right   : 0;
+    right: 0;
   }
+
 }
 /*
 *
@@ -248,7 +259,7 @@ body {
 *
 */
 .chat {
-  // width: 400px;
+  // width: 400px;
 }
 .bubble {
   background-color: #f2f2f2;
@@ -260,18 +271,18 @@ body {
   vertical-align  : top;
 }
 .bubble::before {
-  -moz-transform   : rotate( 29deg ) skew( -35deg );
-  -ms-transform    : rotate( 29deg ) skew( -35deg );
-  -o-transform     : rotate( 29deg ) skew( -35deg );
+  -moz-transform: rotate( 29deg ) skew( -35deg );
+  -ms-transform: rotate( 29deg ) skew( -35deg );
+  -o-transform: rotate( 29deg ) skew( -35deg );
   -webkit-transform: rotate( 29deg ) skew( -35deg );
-  background-color : #f2f2f2;
-  content          : "\00a0";
-  display          : block;
-  height           : 16px;
-  position         : absolute;
-  top              : 11px;
-  transform        : rotate( 29deg ) skew( -35deg );
-  width            : 20px;
+  background-color: #f2f2f2;
+  content: "\00a0";
+  display: block;
+  height: 16px;
+  position: absolute;
+  top: 11px;
+  transform: rotate( 29deg ) skew( -35deg );
+  width: 20px;
 }
 .you {
   background-color: #dfffdf;
@@ -280,26 +291,27 @@ body {
   float           : left;
   margin          : 5px 45px 5px 20px;
   & > .author {
-    clear      : both;
-    display    : block;
-    float      : left;
+    clear: both;
+    display: block;
+    float: left;
     font-weight: 900;
   }
   & > .msg-text {
-    clear  : both;
+    clear: both;
     display: block;
   }
   & > .timestamp {
-    clear  : both;
+    clear: both;
     display: block;
-    float  : right;
+    float: right;
   }
+
 }
 .you::before {
   background-color: #dfffdf;
-  box-shadow      : -2px 2px 2px 0 rgba( 178, 178, 178, .4 );
-  color           : @font-color;
-  left            : -9px;
+  box-shadow: -2px 2px 2px 0 rgba( 178, 178, 178, .4 );
+  color: @font-color;
+  left: -9px;
 }
 .me {
   background-color: #cbe1fe;
@@ -308,26 +320,27 @@ body {
   float           : right;
   margin          : 5px 20px 5px 45px;
   & > .author {
-    clear      : both;
-    display    : none;
-    float      : left;
+    clear: both;
+    display: none;
+    float: left;
     font-weight: 900;
   }
   & > .msg-text {
-    clear  : both;
+    clear: both;
     display: block;
   }
   & > .timestamp {
-    clear  : both;
+    clear: both;
     display: block;
-    float  : left;
+    float: left;
   }
+
 }
 .me::before {
   background-color: #cbe1fe;
-  box-shadow      : 2px -2px 2px 0 rgba( 178, 178, 178, .4 );
-  color           : @font-color;
-  right           : -9px;
+  box-shadow: 2px -2px 2px 0 rgba( 178, 178, 178, .4 );
+  color: @font-color;
+  right: -9px;
 }
 .brand-logo {
   margin-top: -5px;
@@ -358,16 +371,17 @@ body {
   h5,
   h6 {
     font-weight: 300;
-    text-align : center;
+    text-align: center;
   }
   a {
-    color          : @font-color;
-    font-weight    : 300;
+    color: @font-color;
+    font-weight: 300;
     text-decoration: none;
   }
+
 }
 .navigation-icon {
-  margin-left : -10px;
+  margin-left: -10px;
   margin-right: 10px;
 }
 .pane-heading {
@@ -375,11 +389,14 @@ body {
     i.fa-times {
       opacity: 1;
     }
+
   }
   i.fa-times {
     opacity: 0;
   }
+
 }
-a:hover,i.fire-action:hover {
+a:hover,
+i.fire-action:hover {
   cursor: pointer;
 }

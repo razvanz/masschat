@@ -1,15 +1,13 @@
 (function () {
 	'use strict';
 
-	var shellCtrl = function ($rootScope, $scope, session, $timeout, toastr) {
+	var shellCtrl = function ($rootScope, $scope, session) {
 		var self = this;
 
-    $timeout(function(){
-      toastr.success('', 'Successfuly logged in');
-    }, 500);
+		var user = session.getUser();
 	};
 
-	shellCtrl.$inject = ['$rootScope', '$scope', 'session', '$timeout', 'toastr'];
+	shellCtrl.$inject = ['$rootScope', '$scope', 'session'];
 
 	angular.module('app')
 		.controller('shellCtrl', shellCtrl);

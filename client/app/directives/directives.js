@@ -1,4 +1,5 @@
 (function () {
+  'use strict';
 
   angular.module('app')
     .directive('topbar', [
@@ -6,7 +7,7 @@
       function () {
         return {
           restrict: 'A',
-          templateUrl: 'layout/views/templates/topbar.html',
+          templateUrl: 'app/views/templates/topbar.html',
           scope: true,
           controller: 'topbarCtrl',
           controllerAs: 'topbar'
@@ -17,7 +18,7 @@
       function () {
         return {
           restrict: 'A',
-          templateUrl: 'layout/views/templates/groups.html',
+          templateUrl: 'app/views/templates/groups.html',
           scope: true,
           controller: 'groupsCtrl',
           controllerAs: 'groups'
@@ -28,7 +29,7 @@
       function () {
         return {
           restrict: 'A',
-          templateUrl: 'layout/views/templates/contacts.html',
+          templateUrl: 'app/views/templates/contacts.html',
           scope: true,
           controller: 'contactsCtrl',
           controllerAs: 'contacts'

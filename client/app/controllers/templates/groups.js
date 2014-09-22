@@ -6,13 +6,13 @@
 
     self.addGroup = function () {
       var modalDefaults = {
-        templateUrl: 'layout/views/modals/addGroup.html',
+        templateUrl: 'app/views/modals/addGroup.html',
         controller: 'addGroupCtrl',
         resolve: {}
       };
       modalService.showModal(modalDefaults, {})
         .then(function (result) {
-
+          console.log(result);
         });
     };
   };

@@ -7,7 +7,7 @@
     self.panes = [
       {
         title: 'Welcome',
-        content: 'layout/views/templates/welcome.html',
+        content: 'app/views/templates/welcome.html',
         active: true
     }];
   };

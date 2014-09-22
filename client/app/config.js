@@ -3,7 +3,7 @@
 
   var config = function (gravatarServiceProvider) {
     gravatarServiceProvider.defaults = {
-      "default": 'mm' // Mystery man as default for missing avatars
+      'default': 'mm' // Mystery man as default for missing avatars
     };
     // Use https endpoint
     gravatarServiceProvider.secure = true;

@@ -33,6 +33,8 @@
     runApp = function ($rootScope, $state, init, $cookies, toastr) {
       return init.doInit()
         .then(function (res) {
+          console.log('session data');
+          console.log(res);
           var lastPath = ($cookies.lastPath !== undefined && typeof $cookies
               .lastPath === 'string') ?
             $cookies.lastPath : 'main.chat',
@@ -53,6 +55,7 @@
           toastr.info('', 'Welcome to the chat!');
           return $state.go(lastPath, angular.fromJson(lastPathParam));
         }, function (err) {
+          console.log(err.toString());
           // do something
         });
     };

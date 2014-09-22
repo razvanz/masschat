@@ -1,23 +1,23 @@
 <nav id="contacts" role="navigation">
-  <div id="new-contact">
-    <ul class="nav">
-      <li>
-        <a ng-click="contacts.addContact()">
-          <i class="fa fa-plus fa-2x"></i>
-          <span>ADD CONTACT</span>
-        </a>
-      </li>
-      <ul>
-  </div>
-  <div id="contact-list-container">
-    <ul id="contact-list" class="nav">
-      <li class="contact-li" ng-repeat="contact in contacts.list track by $index | orderBy:'contact.displayName'">
-        <a ng-click="contacts.loadContactChat(contact._id)">
-          <img class="user-img" gravatar-src="contact.email" gravatar-size="35" />
-          <span class="user-name">{{contact.displayName}}</span>
-          <i class="fa fa-circle {{contacts.resolveStatusClass(contact.status)}}"></i>
-        </a>
-      </li>
-      <ul>
-  </div>
+    <div id="new-contact">
+        <ul class="nav">
+            <li>
+                <a ng-click="contacts.addContact()">
+                    <i class="fa fa-plus fa-2x"></i>
+                    <span>ADD CONTACT</span>
+                </a>
+            </li>
+            <ul>
+    </div>
+    <div id="contact-list-container">
+        <ul id="contact-list" class="nav">
+            <li class="contact-li" ng-repeat="contact in contacts.list track by $index | orderBy:'contact.displayName'">
+                <a ng-click="contacts.loadContactChat(contact._id)">
+                    <img class="user-img" gravatar-src="contact.email" gravatar-size="35" />
+                    <span class="user-name">{{contact.displayName}}</span>
+                    <i class="fa fa-circle {{contacts.resolveStatusClass(contact.status)}}"></i>
+                </a>
+            </li>
+            <ul>
+    </div>
 </nav>

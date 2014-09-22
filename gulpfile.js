@@ -5,342 +5,389 @@ var gulp = require('gulp');
 
 // Load plugins
 var autoprefixer = require('gulp-autoprefixer'),
-	bowerFiles = require('main-bower-files'),
-	clean = require('gulp-clean'),
-	csso = require('gulp-csso'),
-	filter = require('gulp-filter'),
-	flatten = require('gulp-flatten'),
-	imagemin = require('gulp-imagemin'),
-	istanbul = require('gulp-istanbul'),
-	jasmine = require('gulp-jasmine'),
-	jshint = require('gulp-jshint'),
-	karma = require('gulp-karma'),
-	karmaServer = require('karma')
-	.server,
-	less = require('gulp-less'),
-	livereload = require('gulp-livereload'),
-	concat = require('gulp-concat'),
-	nodemon = require('gulp-nodemon'),
-	shell = require('gulp-shell'),
-	size = require('gulp-size'),
-	tslint = require('gulp-tslint'),
-	typescript = require('gulp-tsc'),
-	uglify = require('gulp-uglify'),
-	useref = require('gulp-useref'),
-	path = require('path');
-
-var clientTestFiles = [
-    	// 'temp/scripts/**/*.js'
-		],
-	clientTestLib = [
-			'temp/lib/angular.js' // make sure angular loads first
-			// 'temp/lib/*.js'
-		];
-
-var serverTestFiles = [
-    'tests/server/**/*.js',
-		'server/controllers/**/*.js',
-		'server/models/**/*.js',
-		'server/utils/**/*.js'
-];
-
-/*******************************************
- ******	Common
- *******************************************/
-gulp.task('mongodb', shell.task([
-	// 'mongo --eval "db.getSiblingDB(\'admin\').shutdownServer()"',
-	'mongod --quiet --dbpath ./db'], {
-	quiet: true
-}));
-
-gulp.task('clean', function () {
-	return gulp.src(['dist', 'coverage', 'temp/*'], {
-			read: false
-		})
-		.pipe(clean());
-});
-
-gulp.task('default', ['clean'], function () {
-	gulp.start('build');
-});
-
-/*******************************************
- ******	end Common
- *******************************************/
+  bowerFiles = require('main-bower-files'),
+  concat = require('gulp-concat'),
+  csso = require('gulp-csso'),
+  flatten = require('gulp-flatten'),
+  formatter = require('gulp-jsbeautifier'),
+  imagemin = require('gulp-imagemin'),
+  istanbul = require('gulp-istanbul'),
+  jasmine = require('gulp-jasmine'),
+  jshint = require('gulp-jshint'),
+  karmaServer = require('karma')
+  .server,
+  less = require('gulp-less'),
+  livereload = require('gulp-livereload'),
+  nodemon = require('gulp-nodemon'),
+  pngcrush = require('imagemin-pngcrush'),
+  rimraf = require('gulp-rimraf'),
+  runSequence = require('run-sequence'),
+  shell = require('gulp-shell'),
+  size = require('gulp-size'),
+  testFiles = require('./server/config/env/test')
+  .files,
+  uglify = require('gulp-uglify');
 
 /*******************************************
  ******	Development
  *******************************************/
+
+gulp.task('jshint-client', function () {
+  return gulp.src('./client/app/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter(require('jshint-stylish')))
+    .pipe(size());
+});
+
+gulp.task('jshint-server', function () {
+  return gulp.src('./server/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter(require('jshint-stylish')))
+    .pipe(size());
+});
+
+gulp.task('jshint-tests', function () {
+  return gulp.src('./tests/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter(require('jshint-stylish')))
+    .pipe(size());
+});
+
+gulp.task('jshint', function (cb) {
+  runSequence('jshint-client', 'jshint-server', 'jshint-tests', cb);
+});
+
 gulp.task('compile-less', function () {
-	return gulp.src('client/content/styles/app.less')
-		.pipe(less())
-		.pipe(autoprefixer('last 1 version'))
-		.pipe(gulp.dest('temp/styles'))
-		.pipe(size());
+  return gulp.src('./client/styles/app.less')
+    .pipe(less())
+    .pipe(autoprefixer('last 1 version'))
+    .pipe(gulp.dest('./client/styles'))
+    .pipe(size());
 });
 
-gulp.task('html', function () {
-	return gulp.src('client/app/**/*.html')
-		.pipe(gulp.dest('temp/layout'))
-		.pipe(size());
+gulp.task('bower-scripts', function () {
+  return gulp.src(bowerFiles({
+      paths: {
+        bowerDirectory: './bower_components',
+        bowerrc: '.bowerrc',
+        bowerJson: 'bower.json'
+      },
+      includeDev: true,
+      filter: /\.js$/i
+    }))
+    .pipe(gulp.dest('./client/lib'));
 });
 
-gulp.task('images', function () {
-	return gulp.src('client/content/images/**/*.*')
-		.pipe(imagemin({
-			optimizationLevel: 3,
-			progressive: true,
-			interlaced: true
-		}))
-		.pipe(gulp.dest('temp/images'))
-		.pipe(size());
+gulp.task('bower-fonts', function () {
+  return gulp.src(bowerFiles({
+      paths: {
+        bowerDirectory: './bower_components',
+        bowerrc: '.bowerrc',
+        bowerJson: 'bower.json'
+      },
+      includeDev: true,
+      filter: /\.eot$|\.svg$|\.ttf$|\.woff$/i
+    }))
+    .pipe(gulp.dest('./client/fonts'));
 });
 
-gulp.task('fonts', function () {
-	return gulp.src(bowerFiles({
-			paths: {
-				bowerDirectory: 'bower_components',
-				bowerrc: '.bowerrc',
-				bowerJson: 'bower.json'
-			}
-		}))
-		.pipe(filter('**/*.{eot,svg,ttf,woff}'))
-		.pipe(flatten())
-		.pipe(gulp.dest('temp/fonts'))
-		.pipe(size());
+gulp.task('bower-styles', function () {
+  return gulp.src(bowerFiles({
+      paths: {
+        bowerDirectory: './bower_components',
+        bowerrc: '.bowerrc',
+        bowerJson: 'bower.json'
+      },
+      includeDev: true,
+      filter: /\.css$/i
+    }))
+    .pipe(gulp.dest('./client/styles'));
 });
 
-gulp.task('extras', function () {
-	return gulp.src(['client/*.*', '!client/*.html'], {
-			dot: true
-		})
-		.pipe(gulp.dest('temp/extras'));
+gulp.task('bower-files', ['bower-fonts', 'bower-styles', 'bower-scripts']);
+
+gulp.task('jshint-client', function () {
+  return gulp.src('client/app/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter(require('jshint-stylish')))
+    .pipe(size());
 });
 
-gulp.task('bower-files', function () {
-	return gulp.src(bowerFiles({
-			paths: {
-				bowerDirectory: 'bower_components',
-				bowerrc: '.bowerrc',
-				bowerJson: 'bower.json'
-			}
-		}))
-		.pipe(filter('*.{js,css}'))
-		.pipe(gulp.dest('temp/lib'));
+gulp.task('jshint-server', function () {
+  return gulp.src('server/**/*.js')
+    .pipe(jshint())
+    .pipe(jshint.reporter(require('jshint-stylish')))
+    .pipe(size());
 });
 
-gulp.task('jshint', function () {
-	return gulp.src('client/app/**/*.js')
-		.pipe(jshint())
-		.pipe(jshint.reporter(require('jshint-stylish')))
-		.pipe(size());
+gulp.task('jshint', function (cb) {
+  runSequence('jshint-client', 'jshint-server', cb);
 });
-
-gulp.task('scripts', function () {
-	return gulp.src('client/app/**/*.js')
-		.pipe(gulp.dest('temp/scripts'))
-		.pipe(size());
-});
-
-gulp.task('compile-client', ['scripts', 'bower-files', 'compile-less', 'html', 'fonts', 'images',
-	'extras']);
 
 gulp.task('demon', function () {
-	return nodemon({
-			script: 'server.js',
-			ext: 'js html',
-			env: {
-				'NODE_ENV': 'development'
-			},
-			watch: 'server/**/*.js'
-		})
-		.on('config:update', function () {
-			// start livereload
-			livereload.listen();
-			// Delay before open browser
-			setTimeout(function () {
-				require('opn')('http://localhost:3000', 'google chrome');
-			}, 3000);
-		});
+  return nodemon({
+      script: 'server.js',
+      ext: 'js html',
+      env: {
+        'NODE_ENV': 'development'
+      },
+      watch: 'server/**/*.js'
+    })
+    .on('config:update', function () {
+      // start livereload
+      livereload.listen();
+      // Delay before open browser
+      setTimeout(function () {
+        require('opn')('http://localhost:3000', 'google chrome');
+      }, 2000);
+    });
 });
 
-gulp.task('serve', ['demon'], function () {
-	gulp.start('jshint');
-});
+gulp.task('serve', ['demon']);
 
-gulp.task('watch', ['compile-client'], function () {
-	// live reload the files
-	gulp.watch('temp/**/*.*', function (event) {
-		livereload.changed(event.path);
-	});
-	gulp.watch('client/app/**/*.html', ['html']);
-	gulp.watch('client/content/styles/**/*.less', ['compile-less']);
-	gulp.watch('client/app/**/*.js', ['jshint', 'scripts']);
-	gulp.watch('client/content/images/**/*.*', ['images']);
-	gulp.start(['mongodb', 'serve']);
+gulp.task('watch', ['bower-files'], function () {
+  // live reload the files
+  gulp.watch(['./client/app/**/*.*'], function (event) {
+    livereload.changed(event.path);
+  });
+  gulp.watch('client/styles/**/*.less', ['compile-less']);
+  gulp.watch('client/app/**/*.js', ['jshint-client']);
+
+  gulp.start(['mongodb', 'serve']);
 });
 
 /*******************************************
  ******	end Development
  *******************************************/
 
+/*******************************************
+ ******	Production
+ *******************************************/
+
+gulp.task('compress-css', ['compile-less'], function () {
+  return gulp.src(['./client/styles/app.css', './client/styles/toaster.css'])
+    .pipe(concat('app.css'))
+    .pipe(csso())
+    .pipe(gulp.dest('./dist/styles'));
+});
+
+gulp.task('compress-js-app', ['jshint-client'], function () {
+  return gulp.src('./client/app/**/*.js')
+    .pipe(concat('app.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('./dist/app/scripts'))
+    .pipe(size());
+});
+
+gulp.task('compress-js-vendor', function () {
+  return gulp.src(bowerFiles({
+      paths: {
+        bowerDirectory: './bower_components',
+        bowerrc: '.bowerrc',
+        bowerJson: 'bower.json'
+      },
+      includeDev: false,
+      filter: /\.js$/i
+    }))
+    .pipe(concat('vendor.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('./dist/app/scripts'))
+    .pipe(size());
+});
+
+gulp.task('html', function () {
+  return gulp.src('./client/app/**/*.html')
+    .pipe(gulp.dest('./dist/app'))
+    .pipe(size());
+});
+
+gulp.task('fonts', function () {
+  return gulp.src(bowerFiles({
+      paths: {
+        bowerDirectory: './bower_components',
+        bowerrc: '.bowerrc',
+        bowerJson: 'bower.json'
+      },
+      includeDev: false,
+      filter: /\.eot$|\.svg$|\.ttf$|\.woff$/i
+    }))
+    .pipe(flatten())
+    .pipe(gulp.dest('./dist/fonts'))
+    .pipe(size());
+});
+
+gulp.task('images', function () {
+  return gulp.src('./client/images/**/*.*')
+    .pipe(imagemin({
+      optimizationLevel: 5,
+      progressive: true,
+      interlaced: true,
+      use: [pngcrush()]
+    }))
+    .pipe(gulp.dest('dist/images'))
+    .pipe(size());
+});
+
+gulp.task('styles', ['compress-css']);
+
+gulp.task('scripts', ['compress-js-app', 'compress-js-vendor']);
+
+gulp.task('build', function (cb) {
+  runSequence('scripts', 'styles', 'html', 'fonts', 'images', cb);
+});
+
+/*******************************************
+ ******	end Production
+ *******************************************/
 
 /*******************************************
  ******	Test
  *******************************************/
-// gulp.task('test-client', ['compile-client'], function (cb) {
-// 	console.log('\n\n\tTEST CLIENT: \n');
-// 	return gulp.src(clientTestLib.concat(clientTestFiles))
-// 		.pipe(karma({
-// 			configFile: './karma.conf.js',
-// 			action: 'run'
-// 		}))
-// 		.on('error', function (err) {
-// 			logErr(err);
-// 		})
-// 		// .on('finish', cb);
-// });
-
-gulp.task('test-client', ['compile-client'], function (cb) {
-	console.log('\n\n\tTEST CLIENT: \n');
-	karmaServer.start({
-		configFile: __dirname + '/karma.conf.js',
-		singleRun: true
-	}, cb);
+gulp.task('test-client', ['bower-scripts'],function (cb) {
+  console.log('\n\n\tTEST CLIENT: \n');
+  karmaServer.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true,
+    files: testFiles.client,
+    exclude: testFiles.excludeClient
+  }, cb);
 });
 
 gulp.task('test-server', function (cb) {
-	process.env.NODE_ENV = 'test';
-	console.log('\n\n\tTEST SERVER: \n');
-	gulp.src('server/**/*.js')
-		.pipe(istanbul())
-		.on('finish', function () {
-			gulp.src(serverTestFiles)
-				.pipe(jasmine({
-					verbose: true
-				}))
-				.on('error', function (err) {
-					logErr(err);
-				})
-				.pipe(istanbul.writeReports({
-					dir: './coverage/server'
-				})) // Creating the reports after tests runned
-			.on('end', cb); //some issue with istambul
-		});
+  process.env.NODE_ENV = 'test';
+  console.log('\n\n\tTEST SERVER: \n');
+  gulp.src('server/**/*.js')
+    .pipe(istanbul())
+    .on('finish', function () {
+      gulp.src(testFiles.server)
+        .pipe(jasmine({
+          verbose: true
+        }))
+        .on('error', function (err) {
+          logErr(err);
+        })
+        .pipe(istanbul.writeReports({
+          dir: './coverage/server'
+        })) // Creating the reports after tests runned
+      .on('end', cb); //some issue with istambul
+    });
 });
 
-gulp.task('chain-test', ['test-server'], function () {
-	gulp.start(['test-client']);
+gulp.task('test', function (cb) {
+  runSequence('jshint', 'test-server', 'test-client', cb);
 });
 
-gulp.task('test', ['chain-test']);
-
-
-// gulp.task('tdd-client', ['compile-client'], function (cb) {
-// 	gulp.src(clientTestLib.concat(clientTestFiles))
-// 		.pipe(karma({
-// 			configFile: './karma.conf.js',
-// 			action: 'watch'
-// 		}))
-// 		.on('error', function (err) {
-// 			logErr(err);
-// 		})
-// 		.on('end', cb);
-// });
-
-gulp.task('tdd-client', ['compile-client'], function (cb) {
-	karmaServer.start({
-		configFile: __dirname + '/karma.conf.js',
-		singleRun: false
-	}, cb);
+gulp.task('tdd-client', ['bower-scripts', 'jshint-client'], function (cb) {
+  karmaServer.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: false,
+    autoWatch: true,
+    files: testFiles.client,
+    exclude: testFiles.excludeClient
+  }, cb);
 });
 
-gulp.task('tdd-server', ['test-server'], function () {
-	gulp.watch(serverTestFiles, ['test-server']);
+gulp.task('tdd-server', ['jshint-server'], function () {
+  gulp.watch(testFiles.server, ['test-server']);
+  gulp.start(['test-server']);
 });
 
-gulp.task('chain-tdd', ['tdd-server'], function () {
-	gulp.watch('client/app/**/*.html', ['html']);
-	gulp.watch('client/app/**/*.js', ['jshint', 'scripts']);
+gulp.task('tdd', function (cb) {
+  console.log('\n\n\t START TDD: \n');
+  gulp.watch('client/app/**/*.html', ['html']);
+  gulp.watch('client/app/**/*.js', ['jshint', 'scripts']);
 
-	gulp.start(['tdd-client']);
-});
-
-gulp.task('tdd', function () {
-	console.log('\n\n\t START TDD: \n');
-	gulp.start(['chain-tdd']);
+  runSequence('tdd-server', 'tdd-client', cb);
 });
 
 /*******************************************
  ******	end Test
  *******************************************/
 
-
 /*******************************************
- ******	Production
+ ******	Common
  *******************************************/
 
-gulp.task('build-styles', ['compile-less'], function () {
-	return gulp.src('temp/styles/app.css')
-		.pipe(csso())
-		.pipe(gulp.dest('dist/styles'));
+gulp.task('clean', function () {
+  return gulp.src(['dist', 'coverage', 'temp/*'], {
+      read: false
+    })
+    .pipe(rimraf());
 });
 
-gulp.task('compress-js-app', ['scripts'], function () {
-	return gulp.src('temp/scripts/**/*.js')
-		.pipe(concat('app.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/scripts'))
-		.pipe(size());
+gulp.task('clean-all', function () {
+  return gulp.src(['dist', 'coverage', 'temp/*', './bower_components',
+      'node_modules'], {
+      read: false
+    })
+    .pipe(rimraf());
 });
 
-gulp.task('compress-js-vendor', ['bower-files'], function () {
-	return gulp.src('temp/lib/*.js')
-		.pipe(concat('vendor.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('dist/scripts'))
-		.pipe(size());
+gulp.task('default', ['clean'], function () {
+  gulp.start('build');
 });
 
-gulp.task('build-scripts', ['compress-js-app', 'compress-js-vendor'], function () {
-	return;
+gulp.task('format-client-js', function () {
+  gulp.src(['./client/app/**/*.js'])
+    .pipe(formatter({
+      config: '.jsbeautifyrc',
+      mode: 'VERIFY_AND_WRITE'
+    }))
+    .pipe(gulp.dest('./client/app'));
 });
 
-gulp.task('build-html', ['html'], function () {
-	return gulp.src('temp/layout/**/*.*')
-		.pipe(gulp.dest('dist/layout'))
-		.pipe(size());
+gulp.task('format-server-js', function () {
+  gulp.src(['./server/**/*.js'])
+    .pipe(formatter({
+      config: '.jsbeautifyrc',
+      mode: 'VERIFY_AND_WRITE'
+    }))
+    .pipe(gulp.dest('./server'));
 });
 
-gulp.task('build-fonts', ['fonts'], function () {
-	return gulp.src('temp/fonts/**/*.*')
-		.pipe(gulp.dest('dist/fonts'))
-		.pipe(size());
+gulp.task('format-tests-js', function () {
+  gulp.src(['./tests/**/*.js'])
+    .pipe(formatter({
+      config: '.jsbeautifyrc',
+      mode: 'VERIFY_AND_WRITE'
+    }))
+    .pipe(gulp.dest('./tests'));
 });
 
-gulp.task('build-images', ['images'], function () {
-	return gulp.src('temp/images/**/*.*')
-		.pipe(gulp.dest('dist/images'))
-		.pipe(size());
+gulp.task('format-client-html', function () {
+  gulp.src(['./client/app/**/*.html'])
+    .pipe(formatter({
+      indentSize: 2
+    }))
+    .pipe(gulp.dest('./client/app'));
 });
 
-gulp.task('build-extras', ['extras'], function () {
-	return gulp.src('temp/extras/**/*.*')
-		.pipe(gulp.dest('dist/extras'))
-		.pipe(size());
+gulp.task('format-server-html', function () {
+  gulp.src(['./server/views/*.html'])
+    .pipe(formatter({
+      indentSize: 2
+    }))
+    .pipe(gulp.dest('./server/views'));
 });
 
-gulp.task('build', ['build-styles', 'build-scripts', 'build-html', 'build-fonts', 'build-images',
-	'build-extras']);
+gulp.task('format-js', ['format-client-js', 'format-server-js',
+  'format-tests-js'
+]);
+
+gulp.task('format-html', ['format-client-html', 'format-server-html']);
+
+gulp.task('format', ['format-js', 'format-html']);
+
+gulp.task('mongodb', shell.task([
+ // 'mongo --eval "db.getSiblingDB(\'admin\').shutdownServer()"',
+ 'mongod --quiet --dbpath ./db'], {
+  quiet: true
+}));
 
 /*******************************************
- ******	end Production
+ ******	end Common
  *******************************************/
+
 function logErr(err) {
-	console.error(err.toString());
-}
-
-function handleError(err) {
-	console.log(err.toString());
-	gulp.emit('end');
+  console.error(err.toString());
 }

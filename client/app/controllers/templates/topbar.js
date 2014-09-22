@@ -1,14 +1,15 @@
-( function () {
-    'use strict';
+(function () {
+  'use strict';
 
-    var topbarCtrl = function(session){
-      var self = this;
-      self.user = session.getUser();
-      console.log(self);
-    };
+  var topbarCtrl = function (session) {
+    var self = this;
+    self.user = session.getUser();
+    console.log(self);
+  };
 
-    topbarCtrl.$inject = ['session'];
+  topbarCtrl.$inject = ['session'];
 
-    angular.module( 'app' ).controller( 'topbarCtrl', topbarCtrl );
+  angular.module('app')
+    .controller('topbarCtrl', topbarCtrl);
 
-} )();
+})();

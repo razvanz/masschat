@@ -1,13 +1,15 @@
-( function () {
-    'use strict';
+(function () {
+  'use strict';
 
-    var toolbarCtrl = function(){
-      var self = this;
+  var toolbarCtrl = function () {
+    var self = this;
+    // just for lint errors
+    self.name ='toolbar';
+  };
 
-    };
+  toolbarCtrl.$inject = [];
 
-    toolbarCtrl.$inject = [];
+  angular.module('app')
+    .controller('toolbarCtrl', toolbarCtrl);
 
-    angular.module( 'app' ).controller( 'toolbarCtrl', toolbarCtrl );
-
-} )();
+})();

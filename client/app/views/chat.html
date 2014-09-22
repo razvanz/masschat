@@ -1,10 +1,10 @@
 <tabset class="row full-height">
-  <tab ng-repeat="pane in chat.panes" active="pane.active" class="pane-heading">
-    <div class="tab-heading" tab-heading>
-      <i class="fa fa-circle pull-left text-success"></i>
-      <span class="tab-title">{{pane.title}}</span>
-      <i class="fa fa-times fire-action pull-right"></i>
-    </div>
-    <div class="full-height" ng-include src="pane.content"></div>
-  </tab>
+    <tab ng-repeat="pane in chat.panes" active="pane.active" class="pane-heading">
+        <div class="tab-heading" tab-heading>
+            <i class="fa fa-circle pull-left text-success"></i>
+            <span class="tab-title">{{pane.title}}</span>
+            <i class="fa fa-times fire-action pull-right"></i>
+        </div>
+        <div class="full-height" ng-include src="pane.content"></div>
+    </tab>
 </tabset>

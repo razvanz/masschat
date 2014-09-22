@@ -16,19 +16,19 @@
     };
 
     self.resolveStatusClass = function (userStatus) {
-      return '';
+      return '' + userStatus;
     };
 
     self.addContact = function () {
       var modalDefaults = {
-        templateUrl: 'layout/views/modals/addContact.html',
+        templateUrl: 'app/views/modals/addContact.html',
         controller: 'addContactCtrl',
         // controllerAs: 'addContact',
         resolve: {}
       };
       modalService.showModal(modalDefaults, {})
         .then(function (result) {
-
+          console.log(result);
         });
     };
   };

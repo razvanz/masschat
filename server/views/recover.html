@@ -1,59 +1,59 @@
 {% extends 'layout.html' %} {% block content %}
 <div id="recover-view" class="container">
-  <div class="row public-top-padding"></div>
-  <div class="row">
-    <div class="col-md-8 col-md-offset-2">
-      <div class="row">
-        <div class="col-md-4 brand-img-logo">
-          <img src="/images/logo.png" class="brand-img">
+    <div class="row public-top-padding"></div>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="row">
+                <div class="col-md-4 brand-img-logo">
+                    <img src="/images/logo.png" class="brand-img">
+                </div>
+                <div class="col-md-7 col-md-offset-1">
+                    <div class="row">
+                        <form name="recover-form" class="recover-form" method="POST" submit="/recover" role="form">
+                            <div class="col-md-12 welcome-msg">
+                                <h3>MassChat</h3>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="input-group col-sm-12">
+                                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                        <input class="form-control" type="text" name="email" id="email" placeholder="USERNAME OR EMAIL" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success">RECOVER ACCOUNT</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 public-navigation-links">
+                                <div class="col-sm-6">
+                                    <div class="pull-left">
+                                        <i class="fa fa-arrow-circle-left"></i>
+                                        <a href="/login">LOGIN</a>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="pull-right">
+                                        <a href="/register">REGISTER</a>
+                                        <i class="fa fa-arrow-circle-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 form-errors">
+                                    {% for error in recoverErrors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        <strong>{{error}}</strong>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-7 col-md-offset-1">
-          <div class="row">
-            <form name="recover-form" class="recover-form" method="POST" submit="/recover" role="form">
-              <div class="col-md-12 welcome-msg">
-                <h3>MassChat</h3>
-              </div>
-              <div class="col-md-12">
-                <div class="form-group">
-                  <div class="input-group col-sm-12">
-                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                    <input class="form-control" type="text" name="email" id="email" placeholder="USERNAME OR EMAIL" />
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-group">
-                  <button type="submit" class="btn btn-success">RECOVER ACCOUNT</button>
-                </div>
-              </div>
-              <div class="col-sm-12 public-navigation-links">
-                <div class="col-sm-6">
-                  <div class="pull-left">
-                    <i class="fa fa-arrow-circle-left"></i>
-                    <a href="/login">LOGIN</a>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="pull-right">
-                    <a href="/register">REGISTER</a>
-                    <i class="fa fa-arrow-circle-right"></i>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-sm-12 form-errors">
-                  {% for error in recoverErrors %}
-                  <div class="alert alert-danger" role="alert">
-                    <strong>{{error}}</strong>
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 {% endblock %}

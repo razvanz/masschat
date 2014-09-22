@@ -20,7 +20,8 @@ var SysLogSchema = new Schema({
   sysLogType: {
     type: [{
       type: String,
-      enum: ['login', 'register', 'recover', 'error', 'user', 'uncategorized']
+      enum: ['login', 'register', 'recover', 'error', 'user',
+        'uncategorized']
     }],
     default: ['uncategorized']
   },
@@ -33,7 +34,10 @@ var SysLogSchema = new Schema({
   },
   timestamp: {
     type: Date,
-    default: function(){return new Date().getTime();}
+    default: function () {
+      return new Date()
+        .getTime();
+    }
   }
 }, sysLogSchemaOpts);
 

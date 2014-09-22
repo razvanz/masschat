@@ -1,22 +1,15 @@
-{% extends 'layout.html' %}
-
-{% block content %}
-  <div class="loading splash-spinner">
+{% extends 'layout.html' %} {% block content %}
+<div class="loading splash-spinner">
     <i class="fa fa-spinner fa-spin fa-4x"></i>
-  </div>
-  <div class="full-height" ui-view></div>
-{% endblock %}
+</div>
+<div class="full-height" ui-view></div>
+{% endblock %} {% block scripts %}
+<!--Application JavaScript Files-->
+{% for jsFile in jsFiles %} {% if jsFile.substring(jsFile.length - 2) === 'js' %}
+<script type="text/javascript" src="{{jsFile}}"></script>
+{% else %}
+<link href="{{jsFile}}">{% endif %} {% endfor %}
 
-{% block scripts %}
-  <!--Application JavaScript Files-->
-  {% for jsFile in jsFiles %}
-    {% if jsFile.substring(jsFile.length - 2) === 'js' %}
-      <script   type="text/javascript" src="{{jsFile}}"></script>
-      {% else %}
-      <link href="{{jsFile}}">
-    {% endif %}
-  {% endfor %}
-
-  <script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 {% endblock %}

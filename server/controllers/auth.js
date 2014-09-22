@@ -1,9 +1,9 @@
 'use strict';
 
-var _ = require('lodash'),
-  passport = require('passport'),
+var passport = require('passport'),
   SysLog = require('../models/sysLog'),
-  Log = require('../models/log');
+  Log = require('../models/log'),
+  User = require('../models/user');
 
 exports.login = function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
@@ -31,9 +31,11 @@ exports.logout = function (req, res) {
     sysLogType: 'logout',
     sysLogDesc: 'Successfull logout',
     sysLogData: null
+  }, function (err) {
+    if (err) console.log('System error: "Unable to create system log!"');
+    req.logout();
+    res.redirect('/');
   });
-  req.logout();
-  res.redirect('/');
 };
 
 exports.getLogs = function (req, res) {
@@ -46,9 +48,10 @@ exports.getLogs = function (req, res) {
       }, function (err, userLogs) {
         if (!err)
           return res.jsonp(sysLogs.concat(userLogs));
-      })
-    else
+      });
+    else {
       return res.send(500);
+    }
   });
 };
 
@@ -76,7 +79,30 @@ exports.renderRecover = function (req, res) {
 };
 
 exports.register = function (req, res) {
-  res.render('login');
+  var newUser = req.body;
+  newUser.provider = 'local';
+  newUser.displayName = newUser.username;
+
+  User.insert(newUser, function (err, user) {
+    if (err) return res.render('register', {
+      registerErrors: [err.message]
+    });
+    else if (!user) {
+      return res.render('register', {
+        registerErrors: [
+        new Error('Something went wrong! Please try again!')]
+      });
+    } else {
+      req.login(user, function (err) {
+        if (err) {
+          return res.render('login', {
+            loginErrors: [err.message]
+          });
+        }
+        return res.redirect('/');
+      });
+    }
+  });
 };
 
 exports.recover = function (req, res) {

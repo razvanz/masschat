@@ -1,12 +1,11 @@
 (function () {
   'use strict';
 
-  var shellCtrl = function ($rootScope, $scope, session) {
-    var self = this;
-    self.user = session.getUser();
+  var shellCtrl = function () {
+    // var self = this;
   };
 
-  shellCtrl.$inject = ['$rootScope', '$scope', 'session'];
+  shellCtrl.$inject = [];
 
   angular.module('app')
     .controller('shellCtrl', shellCtrl);

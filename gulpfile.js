@@ -147,7 +147,7 @@ gulp.task('serve', ['demon']);
 
 gulp.task('watch', ['bower-files'], function () {
   // live reload the files
-  gulp.watch(['./client/app/**/*.*'], function (event) {
+  gulp.watch(['./client/**/*.*'], function (event) {
     livereload.changed(event.path);
   });
   gulp.watch('client/styles/**/*.less', ['compile-less']);
@@ -243,7 +243,7 @@ gulp.task('build', function (cb) {
 /*******************************************
  ******	Test
  *******************************************/
-gulp.task('test-client', ['bower-scripts'],function (cb) {
+gulp.task('test-client', ['bower-scripts'], function (cb) {
   console.log('\n\n\tTEST CLIENT: \n');
   karmaServer.start({
     configFile: __dirname + '/karma.conf.js',
@@ -295,6 +295,7 @@ gulp.task('tdd-server', ['jshint-server'], function () {
 gulp.task('tdd', function (cb) {
   console.log('\n\n\t START TDD: \n');
   gulp.watch('client/app/**/*.html', ['html']);
+  gulp.watch('client/styles/**/*.less', ['compile-less']);
   gulp.watch('client/app/**/*.js', ['jshint', 'scripts']);
 
   runSequence('tdd-server', 'tdd-client', cb);

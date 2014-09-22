@@ -10,14 +10,36 @@
   margin: 0;
 }
 .btn {
-  border       : none;
+  border: none;
   border-radius: 0;
-  width        : 100%;
+  width: 100%;
 }
 textarea {
   resize: none;
 }
 .navbar-nav .open .dropdown-menu {
   background-color: #e9eaed;
+}
+.modal-header {
+  padding         : 10px 20px;
+}
+.modal-footer {
+  margin-top      : 0;
+  overflow-y      : hidden;
+  padding         : 10px 20px;
+  .btn {
+    width: 100%;
+  }
+  .btn + .btn {
+    margin-bottom: 0;
+    margin-left: 0 !important;
+    margin-top: 5px;
+  }
+
+}
+.modal-body {
+  overflow-x      : auto;
+  overflow-y      : auto;
+  padding         : 30px;
 }
 // end

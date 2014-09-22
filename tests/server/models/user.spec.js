@@ -64,7 +64,7 @@ describe('User Model', function () {
   });
 
   it('should give a hint of available usernames', function (done) {
-    User.schema.statics.findUniqueUsername('test1', '', function (
+    User.model.findUniqueUsername('test1', '', function (
       alternative) {
       expect(alternative)
         .not.toEqual(null);
@@ -92,17 +92,17 @@ describe('User Model', function () {
     });
   });
 
-  // it('should throw error if inserting a user with an existing username',
-  //   function (done) {
-  //     User.insert(user, function (err, theUser) {
-  //       expect(err)
-  //         .not.toEqual(null);
-  //       // User.all(function(err, allU){
-  //       // 	console.log(allU);
-  //       done();
-  //       // });
-  //     });
-  //   });
+  it('should throw error if inserting a user with an existing username',
+    function (done) {
+      User.insert(user, function (err) {
+        expect(err)
+          .not.toEqual(null);
+        // User.all(function(err, allU){
+        // 	console.log(allU);
+        done();
+        // });
+      });
+    });
 
   it('should insert a new user', function (done) {
     var anotherUser = user;
@@ -111,6 +111,8 @@ describe('User Model', function () {
     User.insert(anotherUser, function (err, theUser) {
       expect(err)
         .toEqual(null);
+      expect(theUser)
+        .not.toEqual(undefined);
       done();
     });
   });

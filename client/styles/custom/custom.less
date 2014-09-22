@@ -30,8 +30,7 @@ body,
   min-height: 100%;
 }
 body {
-  //position: fixed;
-  -webkit-font-smoothing: antialiased;
+  //position: fixed;  -webkit-font-smoothing: antialiased;
   color: @font-color;
   width: 100%;
 }
@@ -85,8 +84,7 @@ body {
 }
 #groups-container,
 #contacts-container {
-  // background-color: @brand-color;
-  background-color: darken(@bg-color, 7%);
+  // background-color: @brand-color;  background-color: darken(@bg-color, 7%);
   padding-left: 0;
   padding-right: 0;
 }
@@ -106,10 +104,15 @@ body {
     text-align     : left;
     text-decoration: none;
     .fa-circle {
-      // Status icon is smaller
-      float    : right;
+      // Status icon is smaller      float    : right;
       font-size: 10px;
       padding  : 12px 5px;
+    }
+    .fa-mobile-phone {
+      // Status icon is smaller
+      float    : right;
+      font-size: 20px;
+      padding  : 8px 5px;
     }
     >i {
       padding-right: 10px;
@@ -173,14 +176,12 @@ body {
       text-align     : left;
       text-decoration: none;
       & > .tab-heading {
-        & > .fa-circle {
-          // Status icon is smaller
-          font-size: 10px;
+        & > .fa {
+          // Status icon is smaller          font-size: 10px;
           padding  : 4px;
         }
         & > .fa-times {
-          // Status icon is smaller
-          font-size: 15px;
+          // Status icon is smaller          font-size: 15px;
           padding  : 0;
         }
       }
@@ -259,8 +260,7 @@ body {
 *
 */
 .chat {
-  // width: 400px;
-}
+  // width: 400px;}
 .bubble {
   background-color: #f2f2f2;
   border-radius   : 5px;

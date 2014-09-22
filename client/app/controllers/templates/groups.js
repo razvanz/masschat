@@ -7,7 +7,7 @@
     self.addGroup = function () {
       var modalDefaults = {
         templateUrl: 'app/views/modals/addGroup.html',
-        controller: 'addGroupCtrl',
+        controller: 'addGroupCtrl as modal',
         resolve: {}
       };
       modalService.showModal(modalDefaults, {})

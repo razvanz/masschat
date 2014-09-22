@@ -34,6 +34,19 @@
           controller: 'contactsCtrl',
           controllerAs: 'contacts'
         };
+  }])
+    .directive('userLookup', [
+      function () {
+        return {
+          restrict: 'A',
+          templateUrl: 'app/views/templates/userLookup.html',
+          scope: {
+            userLookup: '=',
+            excluded: '='
+          },
+          controller: 'userLookupCtrl',
+          controllerAs: 'lookup'
+        };
   }]);
 
 })();

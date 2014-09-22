@@ -33,7 +33,7 @@ describe('GroupChat preconditions', function () {
     });
   });
 
-  describe("GroupChat Model", function () {
+  describe('GroupChat Model', function () {
     var groupChat = {
         // owner: theUser1._id,
         // users: [theUser1._id],
@@ -362,6 +362,33 @@ describe('GroupChat preconditions', function () {
               .toEqual(n);
             expect(msgs[0].timestamp.getTime())
               .toEqual(lastTmstp);
+            done();
+          });
+        });
+      });
+
+      it('should retrieve number of unread messages', function (done) {
+        var messages = [];
+        for (var i = 10; i > 0; i--) {
+          messages.push({
+            author: theUser1._id,
+            text: 'This is a test message nr ' + (11 - i),
+            timestamp: new Date()
+              .getTime(),
+            seenBy: i > 5 ? [] : [theUser1._id]
+          });
+        }
+
+        GroupChat.update({
+          _id: theChat._id
+        }, {
+          messages: messages
+        }, function () {
+          GroupChat.unreadMsgNo(theUser1._id, function (err, res) {
+            expect(err)
+              .toEqual(null);
+            expect(res[0].unreadMsgNo)
+                .toEqual(5);
             done();
           });
         });

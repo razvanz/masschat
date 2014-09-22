@@ -12,9 +12,9 @@ exports.index = function (req, res) {
 
 exports.initSession = function (req, res) {
   var initVars = {
-    user: req.user,
+    user: req.user.toObject(),
     userRoles: ['user', 'admin', 'guest', '*']
   };
 
   return res.jsonp(initVars);
-}
+};

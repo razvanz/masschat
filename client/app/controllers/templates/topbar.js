@@ -1,13 +1,18 @@
 (function () {
   'use strict';
 
-  var topbarCtrl = function (session) {
+  var topbarCtrl = function ($http, session) {
     var self = this;
     self.user = session.getUser();
-    console.log(self);
+    self.loadUsageReports = function(){
+      return;
+    };
+    self.loadProfileSettings = function(){
+      return;
+    };
   };
 
-  topbarCtrl.$inject = ['session'];
+  topbarCtrl.$inject = ['$http', 'session'];
 
   angular.module('app')
     .controller('topbarCtrl', topbarCtrl);

@@ -1,7 +1,6 @@
 'use strict';
 
-var _ = require('lodash'),
-  validators = require('../utils/validators'),
+var validators = require('../utils/validators'),
   mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   crypto = require('crypto');
@@ -101,7 +100,7 @@ UserSchema.methods.authenticate = function (password) {
  * Hiding the important stuff
  */
 if (!UserSchema.options.toObject) UserSchema.options.toObject = {};
-UserSchema.options.toObject.transform = function (doc, ret, options) {
+UserSchema.options.toObject.transform = function (doc, ret) {
   // remove the important of every document before returning the result
   delete ret.salt;
   delete ret.password;
@@ -117,19 +116,19 @@ UserSchema.options.toObject.transform = function (doc, ret, options) {
 /**
  * Find possible not used username
  */
-exports.findUniqueUsername = UserSchema.statics.findUniqueUsername = function (
-  username, suffix,
-  callback) {
+UserSchema.statics.findUniqueUsername = function (
+  username, suffix, callback) {
+  var _this = this;
   var possibleUsername = username + (suffix || '');
 
-  User.findOne({
+  _this.findOne({
     username: possibleUsername
   }, function (err, user) {
     if (!err) {
       if (!user) {
         callback(possibleUsername);
       } else {
-        return User.findUniqueUsername(username, (suffix || 0) + 1, callback);
+        return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
       }
     } else {
       callback(null);
@@ -137,7 +136,7 @@ exports.findUniqueUsername = UserSchema.statics.findUniqueUsername = function (
   });
 };
 
-var User = mongoose.models['User'] || mongoose.model('User', UserSchema);
+var User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 exports.schema = UserSchema;
 exports.model = User;
@@ -145,54 +144,45 @@ exports.model = User;
 // the methods
 
 exports.all = function (callback) {
-  return User.find()
-    .select('-password -salt -_ver -provider -created -email')
-    .exec(callback);
+  return User.find(callback);
 };
 
 exports.allWithOpts = function (query, select, options, callback) {
-  if (query._id) {
-    query._id = mongoose.Types.ObjectId(query._id);
-  }
   return User.find(query, select, options, callback);
 };
 
 exports.one = function (query, callback) {
-  if (query._id) {
-    query._id = mongoose.Types.ObjectId(query._id);
-  }
-  return User.findOne(query, '-password -salt -_ver -provider -created -email',
-    callback);
+  return User.findOne(query, callback);
 };
 
 exports.oneWithOpts = function (query, select, options, callback) {
-  if (query._id) {
-    query._id = mongoose.Types.ObjectId(query._id);
-  }
   return User.findOne(query, select, options, callback);
 };
 
 exports.insert = function (user, callback) {
-  var newUser = new User(user);
-  return newUser.save(callback);
+  return User.findOne({
+    username: user.username
+  }, function (err, foundUser) {
+    if (err) return callback(err);
+    else if (foundUser)
+      return callback(
+        new Error('Username already in use! Choose something else.'));
+    else {
+      var newUser = new User(user);
+      return newUser.save(callback);
+    }
+  });
 };
 
 // needs to be updated
 exports.update = function (query, extend, callback) {
-  // having the id is not mandatory but we might want it to ensure integrity.
-  if (query._id) {
-    query._id = mongoose.Types.ObjectId(query._id);
-  }
   extend.updated = new Date()
     .getTime();
-  User.findOneAndUpdate(query, extend, callback);
+  return User.findOneAndUpdate(query, extend, callback);
 };
 
 exports.remove = function (query, callback) {
-  if (query._id) {
-    query._id = mongoose.Types.ObjectId(query._id);
-  }
-  User.findOne(query, function (err, user) {
+  return User.findOne(query, function (err, user) {
     if (err)
       return callback(err);
     else if (!user) {

@@ -1,8 +1,6 @@
 'use strict';
 
-var _ = require('lodash'),
-  validators = require('../utils/validators'),
-  mongoose = require('mongoose'),
+var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   Message = require('./message')
   .schema;
@@ -140,13 +138,41 @@ exports.getLastNMsgs = function (query, msgsNo, callback) {
       $limit: msgsNo
   }, {
       $project: {
-        chat_id: '$_id',
+        'chat_id': '$_id',
         _id: '$messages._id',
         author: '$messages.author',
         text: '$messages.text',
         timestamp: '$messages.timestamp',
         seenBy: '$messages.seenBy'
       }
+  }])
+    .exec(callback);
+};
+
+exports.unreadMsgNo = function (userId, callback) {
+  return PrivateChat.aggregate([
+      {
+        $unwind: '$messages'
+    },
+      {
+        $match: {
+          'messages.seenBy': {
+            '$ne': userId
+          }
+        }
+    },
+      {
+        $group: {
+          _id: '$_id',
+          count: {
+            '$sum': 1
+          }
+        }
+    },
+      {
+        $project: {
+          unreadMsgNo: '$count'
+        }
   }])
     .exec(callback);
 };
@@ -171,7 +197,7 @@ exports.getLastNMsgsAfterTmstp = function (query, msgsNo, tmspt, callback) {
       $limit: msgsNo
   }, {
       $project: {
-        chat_id: '$_id',
+        'chat_id': '$_id',
         _id: '$messages._id',
         author: '$messages.author',
         text: '$messages.text',
@@ -209,8 +235,8 @@ exports.markMsgSeen = function (chatId, tmstp, userId, callback) {
   }, function (err, chat) {
     if (err) return callback(err);
     var updated = 0;
-    for (var i = 0, j = chat.messages.length; i < j && chat.messages[i].timestamp
-      .getTime() < tmstp; i++) {
+    for (var i = 0, j = chat.messages.length; i < j &&
+      chat.messages[i].timestamp.getTime() < tmstp; i++) {
       if (typeof chat.messages[i].seenBy !== typeof []) {
         chat.messages[i].seenBy = [];
       }
@@ -219,7 +245,7 @@ exports.markMsgSeen = function (chatId, tmstp, userId, callback) {
         updated++;
       }
     }
-    chat.save(function (err, updatedChat) {
+    chat.save(function (err) {
       return callback(err, updated);
     });
   });

@@ -7818,6 +7818,27 @@ textarea {
 .navbar-nav .open .dropdown-menu {
   background-color: #e9eaed;
 }
+.modal-header {
+  padding: 10px 20px;
+}
+.modal-footer {
+  margin-top: 0;
+  overflow-y: hidden;
+  padding: 10px 20px;
+}
+.modal-footer .btn {
+  width: 100%;
+}
+.modal-footer .btn + .btn {
+  margin-bottom: 0;
+  margin-left: 0 !important;
+  margin-top: 5px;
+}
+.modal-body {
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 30px;
+}
 ::-webkit-scrollbar {
   /* for vertical scrollbars */
   /* for horizontal scrollbars */
@@ -7922,6 +7943,12 @@ body {
   font-size: 10px;
   padding: 12px 5px;
 }
+#groups a .fa-mobile-phone,
+#contacts a .fa-mobile-phone {
+  float: right;
+  font-size: 20px;
+  padding: 8px 5px;
+}
 #groups a > i,
 #contacts a > i {
   padding-right: 10px;
@@ -7983,7 +8010,7 @@ body {
   text-align: left;
   text-decoration: none;
 }
-.nav-tabs > li > a > .tab-heading > .fa-circle {
+.nav-tabs > li > a > .tab-heading > .fa {
   font-size: 10px;
   padding: 4px;
 }

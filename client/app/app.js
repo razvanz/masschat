@@ -30,11 +30,9 @@
         return deferred.promise;
       };
     },
-    runApp = function ($rootScope, $state, init, $cookies, toastr) {
+    runApp = function ($rootScope, $state, init, $cookies, chatSocket) {
       return init.doInit()
         .then(function (res) {
-          console.log('session data');
-          console.log(res);
           var lastPath = ($cookies.lastPath !== undefined && typeof $cookies
               .lastPath === 'string') ?
             $cookies.lastPath : 'main.chat',
@@ -52,7 +50,7 @@
               $cookies.lastPathParams = angular.toJson(toParams);
             }
           });
-          toastr.info('', 'Welcome to the chat!');
+          chatSocket.emit('init', res.data.user);
           return $state.go(lastPath, angular.fromJson(lastPathParam));
         }, function (err) {
           console.log(err.toString());
@@ -62,7 +60,8 @@
 
   Session.$inject = ['$http'];
   init.$inject = ['$http', '$q', 'session'];
-  runApp.$inject = ['$rootScope', '$state', 'init', '$cookies', 'toastr'];
+  runApp.$inject = ['$rootScope', '$state', 'init', '$cookies',
+    'chatSocket'];
 
   var app = angular.module('app', [
   'ngAnimate', 'ui.router', 'ngSanitize', 'ui.bootstrap', 'debounce',

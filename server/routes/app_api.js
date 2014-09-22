@@ -20,9 +20,19 @@ module.exports = function (app) {
     .put(auth.requiresLogin, users.updateUser)
     .delete(auth.requiresLogin, users.deleteUser);
 
+  app.route('/privateChats')
+    .get(auth.requiresLogin, privateChats.list)
+    .post(auth.requiresLogin, privateChats.createChat);
+  app.route('/privateChats/:id')
+    .get(auth.requiresLogin, privateChats.chatById)
+    .put(auth.requiresLogin, privateChats.updateChat)
+    .delete(auth.requiresLogin, privateChats.deleteChat);
+
   // Complex
   app.route('/contacts')
     .get(auth.requiresLogin, privateChats.contactList);
   app.route('/groups')
     .get(auth.requiresLogin, groupChats.groupList);
+  app.route('/lookupUser')
+    .get(auth.requiresLogin, users.lookupUser);
 };

@@ -8,7 +8,7 @@ module.exports = function (app) {
     .get(auth.renderLogin)
     .post(auth.login);
   app.route('/logout')
-    .post(auth.logout);
+    .get(auth.logout);
 
   app.route('/recover')
     .get(auth.renderRecover)

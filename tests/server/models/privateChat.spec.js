@@ -39,7 +39,7 @@ describe('PrivateChat preconditions', function () {
     });
   });
 
-  describe("PrivateChat Model", function () {
+  describe('PrivateChat Model', function () {
     var privateChat = {
         users: [],
         messages: [],
@@ -158,7 +158,7 @@ describe('PrivateChat preconditions', function () {
       function (done) {
         PrivateChat.remove({
           chatname: 'not_there'
-        }, function (err, chat) {
+        }, function (err) {
           expect(err)
             .not.toEqual(null);
           done();
@@ -168,7 +168,7 @@ describe('PrivateChat preconditions', function () {
     it('should remove a private chat', function (done) {
       PrivateChat.remove({
         _id: theChat._id
-      }, function (err, chat) {
+      }, function (err) {
         expect(err)
           .toEqual(null);
         done();
@@ -252,7 +252,7 @@ describe('PrivateChat preconditions', function () {
           _id: theChat._id
         }, {
           messages: messages
-        }, function (err, theUpdatedChat) {
+        }, function () {
           PrivateChat.markMsgSeen(theChat._id, new Date()
             .getTime(), theUser2._id, function (err, updatedNo) {
               expect(err)
@@ -289,7 +289,7 @@ describe('PrivateChat preconditions', function () {
             _id: theChat._id
           }, {
             messages: messages
-          }, function (err, theUpdatedChat) {
+          }, function () {
             PrivateChat.getLastNMsgs({
               _id: theChat._id
             }, n, function (err, msgs) {
@@ -304,8 +304,35 @@ describe('PrivateChat preconditions', function () {
           });
         });
 
-      it(
-        'should retrieve latest n messages before timestamp from a private chat',
+      it('should retrieve number of unread messages', function (done) {
+        var messages = [];
+        for (var i = 10; i > 0; i--) {
+          messages.push({
+            author: theUser1._id,
+            text: 'This is a test message nr ' + (11 - i),
+            timestamp: new Date()
+              .getTime(),
+            seenBy: i > 5 ? [] : [theUser1._id]
+          });
+        }
+
+        PrivateChat.update({
+          _id: theChat._id
+        }, {
+          messages: messages
+        }, function () {
+          PrivateChat.unreadMsgNo(theUser1._id, function (err, res) {
+            expect(err)
+              .toEqual(null);
+            expect(res[0].unreadMsgNo)
+              .toEqual(5);
+            done();
+          });
+        });
+      });
+
+      it('should retrieve latest n messages before timestamp ' +
+        'from a private chat',
         function (done) {
           var messages = [],
             lastTmstp, beforeTmstp, n = 3;
@@ -325,7 +352,7 @@ describe('PrivateChat preconditions', function () {
             _id: theChat._id
           }, {
             messages: messages
-          }, function (err, theUpdatedChat) {
+          }, function () {
             PrivateChat.getLastNMsgsAfterTmstp({
               _id: theChat._id
             }, n, beforeTmstp, function (err, msgs) {

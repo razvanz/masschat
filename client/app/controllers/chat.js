@@ -1,8 +1,7 @@
 (function () {
   'use strict';
 
-  var chatCtrl = function ($rootScope, $scope, session,
-    $cookies, chatSocket, toastr) {
+  var chatCtrl = function (toastr, chatSocket) {
     var self = this;
     self.panes = [
       {
@@ -10,10 +9,12 @@
         content: 'app/views/templates/welcome.html',
         active: true
     }];
+    chatSocket.on('welcome', function(data){
+      toastr.info('', data.message);
+    });
   };
 
-  chatCtrl.$inject = ['$rootScope', '$scope', 'session',
-    '$cookies', 'chatSocket', 'toastr'];
+  chatCtrl.$inject = ['toastr', 'chatSocket'];
 
   angular.module('app')
     .controller('chatCtrl', chatCtrl);

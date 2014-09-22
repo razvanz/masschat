@@ -9,27 +9,26 @@
             <ul class="nav navbar-nav pull-right">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <!-- Replace with gravatar -->
-                        <img class="my-img" src="images/default-user.jpg" />
-                        <strong>username </strong>
+                        <img class="my-img" gravatar-src="topbar.user.email" />
+                        <strong>{{topbar.user.displayName}} </strong>
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a ng-click="loadUsageReports()">
+                            <a ng-click="topbar.loadUsageReports()">
                                 <i class="fa fa-line-chart navigation-icon"></i>
                                 <span>See your usage</span>
                             </a>
                         </li>
                         <li>
-                            <a ng-click="loadProfileSettings()">
+                            <a ng-click="topbar.loadProfileSettings()">
                                 <i class="fa fa-cogs navigation-icon"></i>
                                 <span>Profile settings</span>
                             </a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a ng-click="logout()">
+                            <a href="/logout">
                                 <i class="fa fa-sign-out navigation-icon"></i>
                                 <span>Sign out</span>
                             </a>

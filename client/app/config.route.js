@@ -26,16 +26,7 @@
           settings: {
             authorize: ['admin', 'user']
           },
-          resolve: {
-            contacts: ['$http',
-       function ($http) {
-                return $http.get('/contacts');
-      }],
-            groups: ['$http',
-       function ($http) {
-                return $http.get('/groups');
-      }]
-          }
+          resolve: {}
         }
    },
       {
@@ -48,7 +39,16 @@
           settings: {
             authorize: ['admin', 'user']
           },
-          resolve: {}
+          resolve: {
+            'contacts': ['$http',
+              function ($http) {
+                return $http.get('/contacts');
+            }],
+            'groups': ['$http',
+              function ($http) {
+                return $http.get('/groups');
+            }]
+          }
         }
    },
       {

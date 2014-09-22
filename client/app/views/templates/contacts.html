@@ -15,7 +15,7 @@
                 <a ng-click="contacts.loadContactChat(contact._id)">
                     <img class="user-img" gravatar-src="contact.email" gravatar-size="35" />
                     <span class="user-name">{{contact.displayName}}</span>
-                    <i class="fa fa-circle {{contacts.resolveStatusClass(contact.status)}}"></i>
+                    <i class="fa {{contacts.resolveStatusClass(contact.status)}}"></i>
                 </a>
             </li>
             <ul>

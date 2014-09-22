@@ -30,6 +30,7 @@
   "predef": {
     "angular": false,
     "_": false,
-    "io": false
+    "io": false,
+    "emit": false
   }
 }

@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  var contactsCtrl = function (modalService, session, dataSvc, chatSocket, toastr) {
+  var contactsCtrl = function (modalService, session, dataSvc, chatSocket,
+    toastr) {
     var self = this;
-    var user = session.getUser();
     self.list = [];
 
     self.loadContactChat = function (contactId) {
@@ -27,39 +27,57 @@
         controller: 'addContactCtrl as modal',
         resolve: {
           'contacts': function () {
-            var contc = [];
-            for(var i = self.list-1;i>=0;i--){
-              if(self.list[i].users[0] !== user._id){
-                console.log(self.list[i].users[0]);
-                contc.push({_id: self.list[i].users[0]});
-              } else if(self.list[i].users[1] !== user._id){
-                contc.push({_id: self.list[i].users[1]});
-              }
+            // add the user so it will not be possible to add yourself
+            var cntcs = [session.getUser()];
+            for (var i = self.list.length - 1; i >= 0; i--) {
+              cntcs.push(self.list[i].contact);
             }
-            return contc;
+            return cntcs;
           }
         }
       };
       modalService.showModal(modalDefaults, {});
     };
 
-    self.loadContacts = function(){
-      return dataSvc.privateChats().then(function(res){
-        self.list = res.data;
-      });
-    };
-
-    self.loadContacts();
-
-    chatSocket.on('newContact', function (newContact, cb) {
-      self.list.push(newContact);
-      toastr.info('User "' + newContact.username +
-        '" has been added to your contacts list!');
-      cb(null);
+    chatSocket.on('contacts', function(contacts){
+      self.list = contacts;
+      console.log(angular.toJson(session.getUser()));
     });
+
+    chatSocket.on('newContact', function (chat) {
+      self.list.push(chat);
+      toastr.info('User "' + chat.contact.displayName +
+        '" has been added to your contacts list!');
+    });
+
+    chatSocket.on('addedAsContact', function (chat) {
+      self.list.push(chat);
+      toastr.info('User "' + chat.contact.displayName +
+        '" added you as a contact!');
+    });
+
+    // update contacts status
+    chatSocket.on('contactOnline', function(user) {
+      for(var i=self.list.length-1; i>-1;i--){
+        if(self.list[i].contact._id === user._id)
+          self.list[i].contact.status = 'online';
+      }
+      toastr.info(user.displayName + ' has joined the chat!');
+    });
+
+    chatSocket.on('contactOffline', function(user) {
+      for(var i=self.list.length-1; i>-1;i--){
+        if(self.list[i].contact._id === user._id)
+          self.list[i].contact.status = 'offline';
+      }
+      toastr.info(user.displayName + ' left the chat!');
+    });
+
+    chatSocket.emit('initContacts');
   };
 
-  contactsCtrl.$inject = ['modalService', 'session', 'dataSvc', 'chatSocket', 'toastr'];
+  contactsCtrl.$inject = ['modalService', 'session', 'dataSvc', 'chatSocket',
+    'toastr'];
 
   angular.module('app')
     .controller('contactsCtrl', contactsCtrl);

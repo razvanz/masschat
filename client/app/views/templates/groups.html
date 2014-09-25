@@ -2,7 +2,7 @@
     <div id="new-group">
         <ul class="nav">
             <li>
-                <a ng-click="groups.addNew()">
+                <a ng-click="groups.addGroup()">
                     <i class="fa fa-plus fa-2x"></i>
                     <span>NEW GROUP</span>
                 </a>
@@ -11,11 +11,11 @@
     </div>
     <div id="group-list-container">
         <ul id="group-list" class="nav">
-            <li class="group-li">
-                <a ng-click="groups.loadGroupChat()">
+            <li class="group-li" ng-repeat="chat in groups.list track by $index | orderBy:'chat.chatname'">
+                <a ng-click="groups.loadGroupChat(chat._id)">
                     <img class="group-img" src="images/default-group.jpg" />
-                    <span class="group-name">Group 1</span>
-                    <i class="fa fa-circle text-success"></i>
+                    <span class="group-name">{{chat.chatname}}</span>
+                    <i class="fa {{groups.resolveStatusClass()}}"></i>
                 </a>
             </li>
             <ul>

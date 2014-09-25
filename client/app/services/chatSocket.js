@@ -10,6 +10,7 @@
     return {
       addListener: socket.addListener,
       disconnect: socket.disconnect,
+      // overwriting the socket.emit to send the user with every req
       emit: function () {
         var eventName = Array.prototype.shift.call(arguments),
           args = [eventName, session.getUser()].concat(Array.prototype.slice

@@ -11,11 +11,11 @@
     </div>
     <div id="contact-list-container">
         <ul id="contact-list" class="nav">
-            <li class="contact-li" ng-repeat="contact in contacts.list track by $index | orderBy:'contact.displayName'">
-                <a ng-click="contacts.loadContactChat(contact._id)">
-                    <img class="user-img" gravatar-src="contact.email" gravatar-size="35" />
-                    <span class="user-name">{{contact.displayName}}</span>
-                    <i class="fa {{contacts.resolveStatusClass(contact.status)}}"></i>
+            <li class="contact-li" ng-repeat="chat in contacts.list track by $index | orderBy:'chat.contact.displayName'">
+                <a ng-click="contacts.loadContactChat(chat._id)">
+                    <img class="user-img" gravatar-src="chat.contact.email" gravatar-size="35" />
+                    <span class="user-name">{{chat.contact.displayName}}</span>
+                    <i class="fa {{contacts.resolveStatusClass(chat.contact.status)}}"></i>
                 </a>
             </li>
             <ul>

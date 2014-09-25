@@ -383,11 +383,11 @@ describe('GroupChat preconditions', function () {
           _id: theChat._id
         }, {
           messages: messages
-        }, function () {
+        }, function (err, updatedChat) {
           GroupChat.unreadMsgNo(theUser1._id, function (err, res) {
             expect(err)
               .toEqual(null);
-            expect(res[0].unreadMsgNo)
+            expect(res[updatedChat._id])
                 .toEqual(5);
             done();
           });

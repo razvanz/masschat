@@ -50,7 +50,7 @@
               $cookies.lastPathParams = angular.toJson(toParams);
             }
           });
-          chatSocket.emit('init', res.data.user);
+          chatSocket.emit('init');
           return $state.go(lastPath, angular.fromJson(lastPathParam));
         }, function (err) {
           console.log(err.toString());
@@ -60,8 +60,7 @@
 
   Session.$inject = ['$http'];
   init.$inject = ['$http', '$q', 'session'];
-  runApp.$inject = ['$rootScope', '$state', 'init', '$cookies',
-    'chatSocket'];
+  runApp.$inject = ['$rootScope', '$state', 'init', '$cookies', 'chatSocket'];
 
   var app = angular.module('app', [
   'ngAnimate', 'ui.router', 'ngSanitize', 'ui.bootstrap', 'debounce',

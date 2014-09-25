@@ -1,3 +1,2 @@
-<input type="text" ng-model="userLookup" class="form-control"
-typeahead="user as user.username for user in lookup.getUsers($viewValue) | excludeUsers:excluded"
-typeahead-template-url="app/views/templates/searchUser.html" typeahead-wait-ms="200"/>
+<input type="text" ng-model="userLookup" class="form-control" typeahead="user as user.username for user in lookup.getUsers($viewValue) | excludeUsers:excluded"
+typeahead-template-url="app/views/templates/searchUser.html" typeahead-editable="false" typeahead-wait-ms="200" typeahead-min-length="2"/>

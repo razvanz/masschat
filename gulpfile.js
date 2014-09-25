@@ -130,6 +130,7 @@ gulp.task('demon', function () {
       ext: 'js html',
       env: {
         'NODE_ENV': 'development'
+        // 'DEBUG': 'socket.io*'
       },
       watch: 'server/**/*.js'
     })
@@ -256,7 +257,7 @@ gulp.task('test-client', ['bower-scripts'], function (cb) {
 gulp.task('test-server', function (cb) {
   process.env.NODE_ENV = 'test';
   console.log('\n\n\tTEST SERVER: \n');
-  gulp.src('server/**/*.js')
+  gulp.src(['./server/controllers/**/*.js', './server/models/**/*.js'])
     .pipe(istanbul())
     .on('finish', function () {
       gulp.src(testFiles.server)

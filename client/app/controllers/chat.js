@@ -9,8 +9,9 @@
         content: 'app/views/templates/welcome.html',
         active: true
     }];
-    chatSocket.on('welcome', function(data){
-      toastr.info('', data.message);
+
+    chatSocket.on('welcome', function(welcomeMsg){
+      toastr.info(welcomeMsg);
     });
   };
 

@@ -1,18 +1,20 @@
 (function () {
   'use strict';
 
-  var addContactCtrl = function ($modalInstance, chatSocket, toastr,
-    contacts) {
+  var addContactCtrl = function ($modalInstance, chatSocket, toastr, contacts) {
     var self = this;
     self.newContact = undefined;
     self.contacts = contacts;
+    console.log(contacts);
 
     self.add = function (newContact) {
-      return chatSocket.emit('addContact', newContact,
-        function (err, result) {
-          if (err) toastr.err('', err.message);
-          return $modalInstance.close(result);
-        });
+      if(newContact){
+        chatSocket.emit('addContact', newContact);
+        return $modalInstance.close();
+      }
+      else{
+        return toastr.err('Please select a registered user!');
+      }
     };
 
     self.cancel = function () {

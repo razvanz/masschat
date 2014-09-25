@@ -62,7 +62,7 @@ exports.contactList = function (req, res) {
   }, function (err, chats) {
     if (err || !chats) return res.send(500,
       new Error('Unable to retrieve contacts.'));
-    console.log(chats);
+    // console.log(chats);
     return res.jsonp(chats);
   });
 };

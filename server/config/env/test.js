@@ -17,8 +17,8 @@ module.exports = {
     ],
     server: [
       './server/controllers/**/*.js',
-      './server/data/**/*.js',
-      './server/routes/**/*.js',
+      './server/models/**/*.js',
+      './server/utils/**/*.js',
       'tests/server/**/*.spec.js'
     ],
     excludeClient: []

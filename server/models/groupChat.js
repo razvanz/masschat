@@ -186,10 +186,17 @@ exports.unreadMsgNo = function (userId, callback) {
     },
       {
         $project: {
-          unreadMsgNo: '$count'
+          msgNo: '$count'
         }
   }])
-    .exec(callback);
+    .exec(function(err, result){
+      if(err) return callback(err);
+      var obj = {};
+      for(var i=result.length-1; i>=0;i--){
+        obj[result[i]._id] = result[i].msgNo;
+      }
+      return callback(err, obj);
+    });
 };
 
 exports.getLastNMsgsAfterTmstp = function (query, msgsNo, tmspt, callback) {

@@ -28,7 +28,7 @@
           },
           resolve: {}
         }
-   },
+      },
       {
         state: 'main.chat',
         config: {
@@ -40,17 +40,17 @@
             authorize: ['admin', 'user']
           },
           resolve: {
-            'contacts': ['$http',
-              function ($http) {
-                return $http.get('/contacts');
-            }],
-            'groups': ['$http',
-              function ($http) {
-                return $http.get('/groups');
-            }]
+            // 'contacts': ['$http',
+            //   function ($http) {
+            //     return $http.get('/contacts');
+            // }],
+            // 'groups': ['$http',
+            //   function ($http) {
+            //     return $http.get('/groups');
+            // }]
           }
         }
-   },
+      },
       {
         state: 'main.settings',
         config: {

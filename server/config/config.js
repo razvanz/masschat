@@ -9,10 +9,8 @@ var _ = require('lodash'),
 /**
  * Load app configurations
  */
-module.exports = _.extend(
-  require('./env/all'),
-  require('./env/' + process.env.NODE_ENV) || {}
-);
+module.exports = _.extend(require('./env/all'),
+  require('./env/' + process.env.NODE_ENV) || {});
 
 /**
  * Get files by glob patterns
@@ -27,7 +25,8 @@ module.exports.getGlobbedFiles = function (globPatterns, removeRoot) {
   // The output array
   var output = [];
 
-  // If glob pattern is array so we use each pattern in a recursive way, otherwise we use glob
+  // If glob pattern is array so we use each pattern in a recursive way,
+  // otherwise we use glob
   if (_.isArray(globPatterns)) {
     globPatterns.forEach(function (globPattern) {
       output = _.union(output, _this.getGlobbedFiles(globPattern, removeRoot));
@@ -36,16 +35,16 @@ module.exports.getGlobbedFiles = function (globPatterns, removeRoot) {
     if (urlRegex.test(globPatterns)) {
       output.push(globPatterns);
     } else {
-      glob(globPatterns, {
+      var files = glob.sync(globPatterns, {
         sync: true
-      }, function (err, files) {
-        if (removeRoot) {
-          files = files.map(function (file) {
-            return file.replace(removeRoot, '');
-          });
-        }
-        output = _.union(output, files);
       });
+
+      if (removeRoot) {
+        files = files.map(function (file) {
+          return file.replace(removeRoot, '');
+        });
+      }
+      output = _.union(output, files);
     }
   }
   return output;
@@ -55,13 +54,16 @@ module.exports.getGlobbedFiles = function (globPatterns, removeRoot) {
  * Get the modules JavaScript files
  */
 module.exports.getJavaScriptAssets = function (includeTests) {
-  // var output = this.getGlobbedFiles(this.assets.lib.js.concat(this.assets.js), 'client/');
+  // var output =
+  //   this.getGlobbedFiles(this.assets.lib.js.concat(this.assets.js),
+  //   'client/');
   var output = this.getGlobbedFiles(this.assets.lib.js.concat(this.assets.js),
     this.jsRoot);
   // To include tests
   if (includeTests) {
     output = _.union(output, this.getGlobbedFiles(this.assets.tests));
   }
+
   return output;
 };
 

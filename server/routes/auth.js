@@ -6,7 +6,7 @@ module.exports = function (app) {
   // Auth routes.
   app.route('/login')
     .get(auth.renderLogin)
-    .post(auth.login);
+    .post(auth.preventBruteForce, auth.login);
   app.route('/logout')
     .get(auth.logout);
 

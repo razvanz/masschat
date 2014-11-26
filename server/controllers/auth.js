@@ -3,15 +3,22 @@
 var passport = require('passport'),
   SysLog = require('../models/sysLog'),
   Log = require('../models/log'),
-  User = require('../models/user');
+  User = require('../models/user'),
+  loginFailiures = {},
+  // MINS5 = 60000;
+  MINS5 = 300000;
 
 exports.login = function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
     if (err || !user) {
+      registerLoginFail(req.cookies['connect.sid'],
+        req.connection.remoteAddress);
       res.render('login', {
         loginErrors: [info.message]
       });
     } else {
+      registerLoginSuccess(req.cookies['connect.sid'],
+        req.connection.remoteAddress);
       req.login(user, function (err) {
         if (err) {
           res.render('login', {
@@ -108,3 +115,120 @@ exports.register = function (req, res) {
 exports.recover = function (req, res) {
   res.render('login');
 };
+
+
+
+
+exports.preventBruteForce = function (req, res, next) {
+  if (!blockBySession(req, res)) {
+    if (!blockByIP(req, res)) {
+      next();
+    }
+  }
+};
+
+function blockBySession(req, res) {
+  var ipFail = loginFailiures[req.connection.remoteAddress];
+  if (ipFail) {
+    for (var i = ipFail.sessions.length - 1; i > -1; i--) {
+      if (ipFail.sessions[i].sid === req.cookies['connect.sid']) {
+        if (Date.now() < ipFail.sessions[i].nextTry) {
+          res.render('login', {
+            loginErrors: [
+          'You have exceded the maximum login attempts. Please try after ' +
+            new Date(ipFail.sessions[i].nextTry)
+            .toUTCString() + '!']
+          });
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+function blockByIP(req, res) {
+  var ipFail = loginFailiures[req.connection.remoteAddress];
+
+  if (ipFail && Date.now() < ipFail.nextTry) {
+    res.render('login', {
+      loginErrors: [
+          'You have exceded the maximum login attempts. Please try after ' +
+          new Date(ipFail.nextTry)
+        .toUTCString() + '!']
+    });
+    return true;
+  }
+
+  return false;
+}
+
+function registerLoginFail(sid, ip) {
+  if (loginFailiures[ip]) {
+
+    var foundSession = false;
+
+    for (var i = loginFailiures[ip].sessions.length - 1; i > -1; i--) {
+      if (loginFailiures[ip].sessions[i].sid === sid) {
+        foundSession = true;
+        if (++loginFailiures[ip].sessions[i].count > 2) {
+          loginFailiures[ip].sessions[i].nextTry = Date.now() + MINS5;
+        }
+      }
+    }
+
+    if (!foundSession) {
+      loginFailiures[ip].sessions.push({
+        sid: sid,
+        count: 1,
+        nextTry: Date.now()
+      });
+    }
+
+    if (++loginFailiures[ip].count > 7) {
+      loginFailiures[ip].nextTry = Date.now() + MINS5;
+    }
+
+  } else {
+    loginFailiures[ip] = {
+      sessions: [{
+        sid: sid,
+        count: 1,
+        nextTry: Date.now()
+      }],
+      count: 1,
+      nextTry: Date.now()
+    };
+  }
+}
+
+function registerLoginSuccess(sid, ip) {
+  if (loginFailiures[ip]) {
+    for (var i = loginFailiures[ip].sessions.length - 1; i > -1; i--) {
+      if (loginFailiures[ip].sessions[i].sid === sid) {
+        loginFailiures[ip].sessions.splice(i, 1);
+
+        // balance the ip fails
+        --loginFailiures[ip].count;
+      }
+    }
+  }
+}
+
+// Clean up
+setInterval(function () {
+  for (var ip in loginFailiures) {
+    for (var i = loginFailiures[ip].sessions.length - 1; i > -1; i--) {
+      if (Date.now() - loginFailiures[ip].sessions[i].nextTry > MINS5) {
+        loginFailiures[ip].sessions.splice(i, 1);
+      }
+    }
+
+    if (!loginFailiures[ip].sessions.length && loginFailiures[ip].nextTry >
+      MINS5) {
+      delete loginFailiures[ip];
+    }
+  }
+
+}, MINS5);

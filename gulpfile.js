@@ -20,6 +20,7 @@ var autoprefixer = require('gulp-autoprefixer'),
   livereload = require('gulp-livereload'),
   nodemon = require('gulp-nodemon'),
   pngcrush = require('imagemin-pngcrush'),
+  Reporter = require('jasmine2-reporter').Jasmine2Reporter,
   rimraf = require('gulp-rimraf'),
   runSequence = require('run-sequence'),
   shell = require('gulp-shell'),
@@ -262,7 +263,8 @@ gulp.task('test-server', function (cb) {
     .on('finish', function () {
       gulp.src(testFiles.server)
         .pipe(jasmine({
-          verbose: true
+          reporter: new Reporter(),
+          verbose: false
         }))
         .on('error', function (err) {
           logErr(err);

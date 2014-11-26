@@ -65,6 +65,7 @@
     "imagemin-optipng": "^4.0.0",
     "imagemin-pngcrush": "^1.0.0",
     "imagemin-pngquant": "^4.0.0",
+    "jasmine2-reporter": "^0.1.1",
     "jshint-stylish": "^1.0.0",
     "karma": "^0.12.23",
     "karma-chrome-launcher": "^0.1.4",

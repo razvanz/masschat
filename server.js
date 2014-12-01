@@ -4,7 +4,7 @@
  */
 
 var https = require('https'),
-	http = require('http'),
+	// http = require('http'),
 	fs = require('fs'),
 	db, app, appServer;
 
@@ -32,16 +32,16 @@ require('./server/auth/passport')();
 
 // HTTP
 
-appServer = http.createServer(app)
-	.listen(config.port);
+// appServer = http.createServer(app)
+// 	.listen(config.port);
 
 // HTTPS
 
-// var httpsOptions = {
-//   key: fs.readFileSync('./server/ssl/privatekey.pem'),
-//   cert: fs.readFileSync('./server/ssl/certificate.pem')
-// };
-// appServer = https.createServer(httpsOptions, app).listen(config.port);
+var httpsOptions = {
+  key: fs.readFileSync('./server/ssl/masschat.key'),
+  cert: fs.readFileSync('./server/ssl/masschat.crt')
+};
+appServer = https.createServer(httpsOptions, app).listen(config.port);
 
 // Bind socket.io to the server
 require('./server/config/sockets')(appServer);

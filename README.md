@@ -92,6 +92,7 @@ git push origin development
 ### Workflow
 
 ``` bash
+gulp clean
 gulp build
 gulp watch
 ```

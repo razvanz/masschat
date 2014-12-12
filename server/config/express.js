@@ -3,26 +3,25 @@
 /**
  * Module dependencies.
  */
-var express = require('express'),
-  morgan = require('morgan'),
+var
   bodyParser = require('body-parser'),
-  session = require('express-session'),
   compress = require('compression'),
-  favicon = require('serve-favicon'),
-  methodOverride = require('method-override'),
-  cookieParser = require('cookie-parser'),
-  helmet = require('helmet'),
-  passport = require('passport'),
-  multer = require('multer'),
-  mongoStore = require('connect-mongo')({
-    session: session
-  }),
-  flash = require('connect-flash'),
   config = require('./config'),
   consolidate = require('consolidate'),
-  path = require('path');
+  cookieParser = require('cookie-parser'),
+  dbConfig = require('./database'),
+  express = require('express'),
+  favicon = require('serve-favicon'),
+  flash = require('connect-flash'),
+  helmet = require('helmet'),
+  methodOverride = require('method-override'),
+  morgan = require('morgan'),
+  multer = require('multer'),
+  passport = require('passport'),
+  path = require('path'),
+  session = require('express-session');
 
-module.exports = function (db) {
+module.exports = function () {
   // Initialize express app
   var app = express();
 
@@ -98,16 +97,10 @@ module.exports = function (db) {
 
   // Express MongoDB session storage
   app.use(session({
-    secret: config.sessionSecret,
+    secret: config.session.secret,
     saveUninitialized: true,
     resave: true,
-    store: new mongoStore({
-      db: db.connection.db,
-      collection: config.sessionCollection,
-      cookie: {
-        maxAge: 15 * 60000 // user will be timeout after 15 min
-      }
-    })
+    store: dbConfig.sessionStore(session, config.session)
   }));
 
   // form with files

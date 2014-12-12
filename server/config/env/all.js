@@ -18,8 +18,13 @@ module.exports = {
   },
   port: process.env.PORT || 3000,
   templateEngine: 'swig',
-  sessionSecret: 'very secret',
-  sessionCollection: 'Sessions',
+  session: {
+    secret: 'sure it\'s secret',
+    collection: 'Sessions',
+    cookie: {
+      maxAge: 15 * 60000 // 15 min
+    }
+  },
   cssRoot: 'client',
   jsRoot: 'client',
   assets: {

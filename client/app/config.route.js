@@ -17,7 +17,7 @@
         }
    },
       {
-        state: 'main',
+        state: 'app',
         config: {
           abstract: true,
           templateUrl: 'app/views/main/shell.html',
@@ -30,12 +30,13 @@
         }
       },
       {
-        state: 'main.chat',
+        state: 'app.chat',
         config: {
-          url: '/chat',
-          templateUrl: 'app/views/chat.html',
+          url: '/chat/:id',
+          templateUrl: 'app/views/templates/chatRoom.html',
           controllerAs: 'chat',
           controller: 'chatCtrl',
+          title: 'CHAT',
           settings: {
             authorize: ['admin', 'user']
           },
@@ -52,7 +53,7 @@
         }
       },
       {
-        state: 'main.settings',
+        state: 'app.settings',
         config: {
           url: '/settings',
           templateUrl: 'app/views/settings.html',

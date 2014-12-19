@@ -31,6 +31,7 @@
       };
     },
     runApp = function ($rootScope, $state, init, $cookies, chatSocket) {
+      $state.go('loading');
       return init.doInit()
         .then(function (res) {
           var lastPath = ($cookies.lastPath !== undefined && typeof $cookies

@@ -1,0 +1,8 @@
+<div>
+  <ul class="nav nav-{{uiTabset.type || 'tabs'}}" ng-class="{'nav-stacked': vertical, 'nav-justified': justified}">
+    <li ng-repeat="tab in uiTabset.tabs" class="no-select" ng-class="{active: tab.active, disabled: tab.disabled}">
+      <a href ui-sref="{{tab.stateName}}(tab.stateParams)" ui-sref-active="tab.active"
+      ui-tab-header-transclude>{{tab.title}}</a>
+    </li>
+  </ul>
+</div>

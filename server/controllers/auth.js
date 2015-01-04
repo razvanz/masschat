@@ -9,12 +9,14 @@ exports.login = function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
     if (err || !user) {
       res.render('login', {
+        csrfToken: req.csrfToken(),
         loginErrors: [info.message]
       });
     } else {
       req.login(user, function(err) {
         if (err) {
           res.render('login', {
+            csrfToken: req.csrfToken(),
             loginErrors: [err.message]
           });
           return next(err);
@@ -70,15 +72,21 @@ exports.me = function(req, res) {
 };
 
 exports.renderLogin = function(req, res, next) {
-  res.render('login');
+  res.render('login', {
+    csrfToken: req.csrfToken()
+  });
 };
 
 exports.renderRegister = function(req, res) {
-  res.render('register');
+  res.render('register', {
+    csrfToken: req.csrfToken()
+  });
 };
 
 exports.renderRecover = function(req, res) {
-  res.render('recover');
+  res.render('recover', {
+    csrfToken: req.csrfToken()
+  });
 };
 
 exports.register = function(req, res) {
@@ -100,6 +108,7 @@ exports.register = function(req, res) {
       req.login(user, function(err) {
         if (err) {
           return res.render('login', {
+            csrfToken: req.csrfToken(),
             loginErrors: [err.message]
           });
         }
@@ -110,5 +119,5 @@ exports.register = function(req, res) {
 };
 
 exports.recover = function(req, res) {
-  res.render('login');
+  res.redirect('/login');
 };

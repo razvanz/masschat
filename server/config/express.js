@@ -8,6 +8,7 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   session = require('express-session'),
   compress = require('compression'),
+  csrf = require('csurf'),
   favicon = require('serve-favicon'),
   methodOverride = require('method-override'),
   cookieParser = require('cookie-parser'),
@@ -22,7 +23,7 @@ var express = require('express'),
   consolidate = require('consolidate'),
   path = require('path');
 
-module.exports = function (db) {
+module.exports = function(db) {
   // Initialize express app
   var app = express();
 
@@ -42,14 +43,14 @@ module.exports = function (db) {
   app.use(favicon(path.resolve('server/views/favicon.ico')));
 
   // Passing the request url to environment locals
-  app.use(function (req, res, next) {
+  app.use(function(req, res, next) {
     res.locals.url = req.protocol + ':// ' + req.headers.host + req.url;
     next();
   });
 
   // Should be placed before express.static
   app.use(compress({
-    filter: function (req, res) {
+    filter: function(req, res) {
       return (/json|text|javascript|css/)
         .test(res.getHeader('Content-Type'));
     },
@@ -100,7 +101,9 @@ module.exports = function (db) {
   app.use(session({
     secret: config.sessionSecret,
     saveUninitialized: true,
+    rolling: true,
     resave: true,
+    unset: 'destroy',
     store: new mongoStore({
       db: db.connection.db,
       collection: config.sessionCollection,
@@ -109,6 +112,21 @@ module.exports = function (db) {
       }
     })
   }));
+
+  // Cross-site request forgery
+  app.use(csrf({
+    value: function(req) {
+      return (req.body && req.body._csrf) ||
+        (req.query && req.query._csrf) ||
+        (req.headers['x-csrf-token']) ||
+        (req.headers['x-xsrf-token']);
+    }
+  }));
+
+  app.use(function(req, res, next) {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    next();
+  });
 
   // form with files
   app.use(multer({
@@ -139,13 +157,13 @@ module.exports = function (db) {
 
   // Globbing routing files
   config.getGlobbedFiles('./server/routes/*.js')
-    .forEach(function (routePath) {
+    .forEach(function(routePath) {
       require(path.resolve(routePath))(app);
     });
 
   // Assume 'not found' in the error msgs is a 404. this is somewhat silly,
   //but valid, you can do whatever you like, set properties, use instanceof etc.
-  app.use(function (err, req, res, next) {
+  app.use(function(err, req, res, next) {
     // If the error object doesn't exists
     if (!err) {
       return next();
@@ -162,7 +180,7 @@ module.exports = function (db) {
   });
 
   // Assume 404 since no middleware responded
-  app.use(function (req, res) {
+  app.use(function(req, res) {
     res.status(404)
       .render('404', {
         url: req.originalUrl,

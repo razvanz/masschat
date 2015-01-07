@@ -4,7 +4,7 @@
   var chatSocket = function (socketFactory, session) {
     var socket = socketFactory({
       // prefix: 'socket:',
-      ioSocket: io.connect('/chat')
+      ioSocket: io.connect('/chat', {secure: true})
     });
 
     return {

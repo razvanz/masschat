@@ -38,6 +38,7 @@ exports.logout = function(req, res) {
   //   sysLogData: null
   // }, function (err) {
   //   if (err) console.log('System error: "Unable to create system log!"');
+
   req.logout();
   res.redirect('/');
   // });

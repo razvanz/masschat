@@ -87,7 +87,6 @@ figure {
   margin: 1em 40px;
 }
 hr {
-  -moz-box-sizing: content-box;
   box-sizing: content-box;
   height: 0;
 }
@@ -138,8 +137,7 @@ input {
 }
 input[type="checkbox"],
 input[type="radio"] {
-  -moz-box-sizing: border-box;
-       box-sizing: border-box;
+  box-sizing: border-box;
   padding: 0;
 }
 input[type="number"]::-webkit-inner-spin-button,
@@ -148,7 +146,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="search"] {
   -webkit-appearance: textfield;
-  -moz-box-sizing: content-box;
   box-sizing: content-box;
 }
 input[type="search"]::-webkit-search-cancel-button,
@@ -866,12 +863,10 @@ th {
   content: "\e200";
 }
 * {
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 *:before,
 *:after {
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 html {
@@ -2296,7 +2291,6 @@ label {
   font-weight: bold;
 }
 input[type="search"] {
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 input[type="radio"],
@@ -7796,6 +7790,7 @@ button.close {
   content: "\f20c";
 }
 .navbar-collapse.collapse {
+  display: -webkit-box !important;
   display: -webkit-flex !important;
   display: -ms-flexbox !important;
   display: flex !important;
@@ -7871,7 +7866,6 @@ body {
   width: 100%;
 }
 #app-main {
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
   height: 100%;
   min-height: 100%;
@@ -8033,9 +8027,21 @@ body {
   white-space: nowrap;
   width: 70px;
 }
-.tab-content {
-  min-height: 100%;
-  padding-top: 40px;
+.tab-heading {
+  text-align: right;
+  white-space: nowrap;
+}
+.tab-heading > .tab-title {
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.2em;
+}
+.tab-heading > .opaque {
+  opacity: 0;
+  -webkit-transition: all 1s ease;
+  transition: all 1s ease;
 }
 .tab-pane.active {
   bottom: 0;
@@ -8044,17 +8050,18 @@ body {
   right: 0;
   top: 40px;
 }
-.chat-room {
-  min-height: 100%;
+.tab-view {
+  height: 100%;
+  padding-top: 40px;
+  padding-bottom: 50px;
 }
-.chat-room .chat-msgs {
-  bottom: 50px;
-  left: 0;
+.chat-room {
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  position: absolute;
-  right: 0;
-  top: 0;
+}
+.chat-room .chat-msgs .chat {
+  padding-bottom: 30px;
 }
 .chat-room .msg-input {
   max-height: 50px;
@@ -8085,6 +8092,9 @@ body {
 *
 *
 */
+.chat .load-more {
+  text-align: center;
+}
 .bubble {
   background-color: #f2f2f2;
   border-radius: 5px;

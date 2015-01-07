@@ -32,8 +32,8 @@ dbConfig(config.db, function (err) {
     // var https = require('https'),
     //   fs = require('fs');
     // var httpsOptions = {
-    //   key: fs.readFileSync('./server/ssl/privatekey.pem'),
-    //   cert: fs.readFileSync('./server/ssl/certificate.pem')
+    //   key: fs.readFileSync('./server/ssl/masschat.key'),
+    //   cert: fs.readFileSync('./server/ssl/masschat.crt')
     // };
     // appServer = https.createServer(httpsOptions, app)
     //   .listen(config.port);

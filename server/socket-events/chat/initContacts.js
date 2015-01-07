@@ -41,7 +41,7 @@ module.exports = function (socket, io) {
             user._id ? 1 : 0;
 
           // if the user is online we add him as well;
-          if (io.users[chats[i].users[contactIdx]._id.toString()]) {
+          if (io.users && io.users[chats[i].users[contactIdx]._id.toString()]) {
             // no need to join if is already id. Should be done automaticaly
             // io.users[chats[i].users[contactIdx]._id.toString()].socket.join(chats[i]._id);
             chats[i].users[contactIdx].status = 'online';

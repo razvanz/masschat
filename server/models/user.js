@@ -20,9 +20,10 @@ var UserSchema = new Schema({
   email: {
     type: String,
     trim: true,
-    default: '',
+    unique: true,
     validate: [validators.validateLocalStrategyProperty,
-      'Please fill in your email'],
+      'Please fill in your email'
+    ],
     match: [/.+\@.+\..+/, 'Please fill a valid email address']
   },
   username: {
@@ -33,22 +34,24 @@ var UserSchema = new Schema({
   },
   password: {
     type: String,
-    default: '',
+    default: 'masschat',
     validate: [validators.validateLocalStrategyPassword,
-      'Password should be longer']
+      'Password should be between 6 and 128 characters containing: lowercase ' +
+      'and uppercase letters, digits and special characters!'
+    ]
   },
   salt: {
     type: String
   },
   provider: {
     type: String,
-    required: 'Provider is required'
+    required: 'Provider is required!'
   },
   providerData: {},
   additionalProvidersData: {},
   created: {
     type: Date,
-    default: function () {
+    default: function() {
       return new Date()
         .getTime();
     }
@@ -68,8 +71,8 @@ var UserSchema = new Schema({
 /**
  * Hook a pre save method to hash the password
  */
-UserSchema.pre('save', function (next) {
-  if (this.password && this.password.length > 4) {
+UserSchema.pre('save', function(next) {
+  if (this.password && this.password.length >= 6) {
     this.salt = new Buffer(crypto.randomBytes(16)
       .toString('base64'), 'base64');
     this.password = this.hashPassword(this.password);
@@ -80,7 +83,7 @@ UserSchema.pre('save', function (next) {
 /**
  * Create instance method for hashing a password
  */
-UserSchema.methods.hashPassword = function (password) {
+UserSchema.methods.hashPassword = function(password) {
   if (this.salt && password) {
     return crypto.pbkdf2Sync(password, this.salt, 10000, 64)
       .toString('base64');
@@ -92,7 +95,7 @@ UserSchema.methods.hashPassword = function (password) {
 /**
  * Create instance method for authenticating user
  */
-UserSchema.methods.authenticate = function (password) {
+UserSchema.methods.authenticate = function(password) {
   return this.password === this.hashPassword(password);
 };
 
@@ -100,7 +103,7 @@ UserSchema.methods.authenticate = function (password) {
  * Hiding the important stuff
  */
 if (!UserSchema.options.toObject) UserSchema.options.toObject = {};
-UserSchema.options.toObject.transform = function (doc, ret) {
+UserSchema.options.toObject.transform = function(doc, ret) {
   // remove the important of every document before returning the result
   delete ret.salt;
   delete ret.password;
@@ -116,14 +119,14 @@ UserSchema.options.toObject.transform = function (doc, ret) {
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = function (
+UserSchema.statics.findUniqueUsername = function(
   username, suffix, callback) {
   var _this = this;
   var possibleUsername = username + (suffix || '');
 
   _this.findOne({
     username: possibleUsername
-  }, function (err, user) {
+  }, function(err, user) {
     if (!err) {
       if (!user) {
         callback(possibleUsername);
@@ -143,46 +146,52 @@ exports.model = User;
 
 // the methods
 
-exports.all = function (callback) {
+exports.all = function(callback) {
   return User.find(callback);
 };
 
-exports.allWithOpts = function (query, select, options, callback) {
+exports.allWithOpts = function(query, select, options, callback) {
   return User.find(query, select, options, callback);
 };
 
-exports.one = function (query, callback) {
+exports.one = function(query, callback) {
   return User.findOne(query, callback);
 };
 
-exports.oneWithOpts = function (query, select, options, callback) {
+exports.oneWithOpts = function(query, select, options, callback) {
   return User.findOne(query, select, options, callback);
 };
 
-exports.insert = function (user, callback) {
+exports.insert = function(user, callback) {
   return User.findOne({
     username: user.username
-  }, function (err, foundUser) {
+  }, function(err, foundUser) {
     if (err) return callback(err);
     else if (foundUser)
       return callback(
         new Error('Username already in use! Choose something else.'));
     else {
       var newUser = new User(user);
-      return newUser.save(callback);
+      newUser.validate(function(err) {
+        if (err){
+          console.log(err);
+          return callback(err);
+        }
+        else newUser.save(callback);
+      });
     }
   });
 };
 
 // needs to be updated
-exports.update = function (query, extend, callback) {
+exports.update = function(query, extend, callback) {
   extend.updated = new Date()
     .getTime();
   return User.findOneAndUpdate(query, extend, callback);
 };
 
-exports.remove = function (query, callback) {
-  return User.findOne(query, function (err, user) {
+exports.remove = function(query, callback) {
+  return User.findOne(query, function(err, user) {
     if (err)
       return callback(err);
     else if (!user) {
@@ -193,6 +202,6 @@ exports.remove = function (query, callback) {
   });
 };
 
-exports.removeAll = function (callback) {
+exports.removeAll = function(callback) {
   return mongoose.connection.db.dropCollection('Users', callback);
 };

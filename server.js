@@ -3,14 +3,16 @@
 require('./server/config/init')();
 
 var config = require('./server/config/config'),
-  dbConfig = require('./server/config/database');
+  dbConfig = require('./server/config/database'),
+  opbeat = require('./server/config/opbeat');
 
 // Bootstrap db connection
 // Start server only if we successfully connected to database
-dbConfig(config.db, function (err) {
+dbConfig(config.db, function(err) {
   if (err) {
-    console.error('\x1b[31m%s\x1b[0m', 'Could not connect to MongoDB: [' + err +
-      ']');
+    opbeat.captureError(err, {
+      info: 'Cannot connect to MongoDB. Start-up failed!'
+    });
   } else {
 
     var http = require('http'),

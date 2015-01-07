@@ -1,5 +1,4 @@
 # Logs
-logs
 *.log
 
 # Runtime data
@@ -32,5 +31,5 @@ bower_components
 .localized
 
 # App specific files
-dist
+dist/**
 temp/**

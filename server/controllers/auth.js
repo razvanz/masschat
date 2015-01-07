@@ -1,9 +1,25 @@
 'use strict';
 
 var passport = require('passport'),
-  SysLog = require('../models/sysLog'),
-  Log = require('../models/log'),
   User = require('../models/user');
+
+exports.renderLogin = function(req, res, next) {
+  res.render('login', {
+    csrfToken: req.csrfToken()
+  });
+};
+
+exports.renderRegister = function(req, res) {
+  res.render('register', {
+    csrfToken: req.csrfToken()
+  });
+};
+
+exports.renderRecover = function(req, res) {
+  res.render('recover', {
+    csrfToken: req.csrfToken()
+  });
+};
 
 exports.login = function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
@@ -30,37 +46,6 @@ exports.login = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.logout = function(req, res) {
-  // SysLog.insert({
-  //   user: req.user._id,
-  //   sysLogType: 'logout',
-  //   sysLogDesc: 'Successfull logout',
-  //   sysLogData: null
-  // }, function (err) {
-  //   if (err) console.log('System error: "Unable to create system log!"');
-
-  req.logout();
-  res.redirect('/');
-  // });
-};
-
-exports.getLogs = function(req, res) {
-  SysLog.allWithOpts({
-    user: req.user._id
-  }, function(err, sysLogs) {
-    if (!err) {
-      return Log.allWithOpts({
-        user: req.user._id
-      }, function(err, userLogs) {
-        if (!err)
-          return res.jsonp(sysLogs.concat(userLogs));
-      });
-    } else {
-      return res.send(500);
-    }
-  });
-};
-
 exports.requiresLogin = function(req, res, next) {
   if (!req.isAuthenticated()) {
     return res.redirect('/login');
@@ -68,26 +53,13 @@ exports.requiresLogin = function(req, res, next) {
   next();
 };
 
+exports.logout = function(req, res) {
+  req.logout();
+  return res.redirect('/');
+};
+
 exports.me = function(req, res) {
   res.jsonp(req.user || null);
-};
-
-exports.renderLogin = function(req, res, next) {
-  res.render('login', {
-    csrfToken: req.csrfToken()
-  });
-};
-
-exports.renderRegister = function(req, res) {
-  res.render('register', {
-    csrfToken: req.csrfToken()
-  });
-};
-
-exports.renderRecover = function(req, res) {
-  res.render('recover', {
-    csrfToken: req.csrfToken()
-  });
 };
 
 exports.register = function(req, res) {
@@ -96,13 +68,21 @@ exports.register = function(req, res) {
   newUser.displayName = newUser.username;
 
   User.insert(newUser, function(err, user) {
-    if (err) return res.render('register', {
-      registerErrors: [err.message]
-    });
-    else if (!user) {
+    if (err) {
+      
+      var errorMsgs = [];
+      for (var param in err.errors)
+        errorMsgs.push(err.errors[param].message);
+
       return res.render('register', {
+        csrfToken: req.csrfToken(),
+        registerErrors: errorMsgs
+      });
+    } else if (!user) {
+      return res.render('register', {
+        csrfToken: req.csrfToken(),
         registerErrors: [
-          new Error('Something went wrong! Please try again!')
+          new Error('Something went wrong! Please try again later!')
         ]
       });
     } else {

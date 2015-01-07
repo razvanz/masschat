@@ -10,6 +10,8 @@ var bodyParser = require('body-parser'),
   cookieParser = require('cookie-parser'),
   csrf = require('csurf'),
   dbConfig = require('./database'),
+  errorLogger = require('../utils/errorLogger'),
+  opbeat = require('./opbeat'),
   express = require('express'),
   favicon = require('serve-favicon'),
   flash = require('connect-flash'),
@@ -153,22 +155,20 @@ module.exports = function() {
       require(path.resolve(routePath))(app);
     });
 
-  // Assume 'not found' in the error msgs is a 404. this is somewhat silly,
-  //but valid, you can do whatever you like, set properties, use instanceof etc.
+  app.use(errorLogger({
+    errFileCount: 6,
+    errFilePeriod: '1w',
+    level: 'error',
+    name: config.app.title,
+    toFile: true,
+    errFilePath: path.resolve('./logs/request-errs.log')
+  }));
+
+  app.use(opbeat.middleware.express());
+
   app.use(function(err, req, res, next) {
-    // If the error object doesn't exists
-    if (!err) {
-      return next();
-    }
-
-    // Log it
-    console.error(err.stack);
-
-    // Error page
-    res.status(500)
-      .render('500', {
-        error: err.stack
-      });
+    res.status(err.statusCode || 500)
+      .jsonp(err);
   });
 
   // Assume 404 since no middleware responded

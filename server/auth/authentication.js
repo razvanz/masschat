@@ -2,11 +2,9 @@
 
 var events = require('events');
 var util = require('util');
-var bcrypt = require('bcrypt-nodejs');
-var SysLog = require('../models/sysLog');
 var User = require('../models/user');
 
-var AuthResult = function (credentials) {
+var AuthResult = function(credentials) {
   var result = {
     credentials: credentials,
     message: null,
@@ -16,48 +14,45 @@ var AuthResult = function (credentials) {
   return result;
 };
 
-var Authentication = function (db) {
+var Authentication = function() {
   var self = this;
   var continueWith;
   events.EventEmitter.call(self);
 
-  var validateCredentials = function (authResult) {
+  var validateCredentials = function(authResult) {
     if (authResult.credentials.username && authResult.credentials.password) {
       self.emit('credentials-ok', authResult);
-    } else {
-      if (!authResult.credentials.username) {
-        authResult.message = 'Missing username';
-      } else {
-        authResult.message = 'Missing password';
-      }
-      self.emit('invalid', authResult);
-    }
+      return;
+    } else if (!authResult.credentials.username)
+      authResult.message = 'Missing username';
+    else
+      authResult.message = 'Missing password';
+    self.emit('invalid', authResult);
   };
 
-  var findUser = function (authResult) {
+  var findUser = function(authResult) {
     var criteria = (authResult.credentials.username.indexOf('@') === -1) ? {
       username: authResult.credentials.username
     } : {
       email: authResult.credentials.username
     };
-    User.oneWithOpts(criteria, 'username password salt', null, function (
+    User.oneWithOpts(criteria, 'username password salt', null, function(
       err, user) {
       if (err) {
-        console.log(err);
-        // log error
         authResult.message = 'Unable to find user. Internal error.';
         return self.emit('invalid', authResult);
       } else if (!user) {
         authResult.message =
           'No user found with this username or email address.';
         return self.emit('invalid', authResult);
+      } else {
+        authResult.user = user;
+        return self.emit('user-found', authResult);
       }
-      authResult.user = user;
-      return self.emit('user-found', authResult);
     });
   };
 
-  var comparePassword = function (authResult) {
+  var comparePassword = function(authResult) {
     var matched = authResult.user.authenticate(authResult.credentials.password);
     if (matched) {
       self.emit('password-accepted', authResult);
@@ -67,17 +62,9 @@ var Authentication = function (db) {
     }
   };
 
-  var authOk = function (authResult) {
+  var authOk = function(authResult) {
     authResult.succes = true;
     authResult.message = 'User logged in succesfully';
-    SysLog.insert({
-      user: authResult.user._id,
-      sysLogType: 'login',
-      sysLogDesc: 'Successfull login',
-      sysLogData: {
-        result: true
-      }
-    });
     self.emit('authenticated', authResult);
     self.emit('completed', authResult);
     if (continueWith) {
@@ -85,14 +72,8 @@ var Authentication = function (db) {
     }
   };
 
-  var authNotOk = function (authResult) {
+  var authNotOk = function(authResult) {
     authResult.success = false;
-    SysLog.insert({
-      user: null,
-      sysLogType: 'login',
-      sysLogDesc: 'Unsuccessful login',
-      sysLogData: null
-    });
     self.emit('not-authenticated', authResult);
     self.emit('completed', authResult);
     if (continueWith) {
@@ -107,7 +88,7 @@ var Authentication = function (db) {
 
   self.on('invalid', authNotOk);
 
-  self.authenticate = function (credentials, next) {
+  self.authenticate = function(credentials, next) {
     var authResult = new AuthResult(credentials);
     continueWith = next;
     self.emit('login-received', authResult);

@@ -33,16 +33,16 @@ exports.login = function (req, res, next) {
 };
 
 exports.logout = function (req, res) {
-  SysLog.insert({
-    user: req.user._id,
-    sysLogType: 'logout',
-    sysLogDesc: 'Successfull logout',
-    sysLogData: null
-  }, function (err) {
-    if (err) console.log('System error: "Unable to create system log!"');
+  // SysLog.insert({
+  //   user: req.user._id,
+  //   sysLogType: 'logout',
+  //   sysLogDesc: 'Successfull logout',
+  //   sysLogData: null
+  // }, function (err) {
+  //   if (err) console.log('System error: "Unable to create system log!"');
     req.logout();
     res.redirect('/');
-  });
+  // });
 };
 
 exports.getLogs = function (req, res) {

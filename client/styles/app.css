@@ -8060,6 +8060,9 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 }
+.chat-room .chat-msgs .chat {
+  padding-bottom: 30px;
+}
 .chat-room .msg-input {
   max-height: 50px;
   min-height: 50px;
@@ -8089,6 +8092,9 @@ body {
 *
 *
 */
+.chat .load-more {
+  text-align: center;
+}
 .bubble {
   background-color: #f2f2f2;
   border-radius: 5px;

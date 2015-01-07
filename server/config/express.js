@@ -3,12 +3,12 @@
 /**
  * Module dependencies.
  */
-var
-  bodyParser = require('body-parser'),
+var bodyParser = require('body-parser'),
   compress = require('compression'),
   config = require('./config'),
   consolidate = require('consolidate'),
   cookieParser = require('cookie-parser'),
+  csrf = require('csurf'),
   dbConfig = require('./database'),
   express = require('express'),
   favicon = require('serve-favicon'),
@@ -99,9 +99,26 @@ module.exports = function() {
   app.use(session({
     secret: config.session.secret,
     saveUninitialized: true,
+    rolling: true,
     resave: true,
+    unset: 'destroy',
     store: dbConfig.sessionStore(session, config.session)
   }));
+
+  // Cross-site request forgery
+  app.use(csrf({
+    value: function(req) {
+      return (req.body && req.body._csrf) ||
+        (req.query && req.query._csrf) ||
+        (req.headers['x-csrf-token']) ||
+        (req.headers['x-xsrf-token']);
+    }
+  }));
+
+  app.use(function(req, res, next) {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    next();
+  });
 
   // form with files
   app.use(multer({

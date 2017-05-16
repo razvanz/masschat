@@ -1,5 +1,7 @@
 # MassChat
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/razvanz/masschat.svg)](https://greenkeeper.io/)
+
 ### Description:
 
 MassChat is a web based chat system.
